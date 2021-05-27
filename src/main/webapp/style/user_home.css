@@ -1,0 +1,35 @@
+.userMenuBar{
+    /*margin-top: 10%;*/
+    /*display: flex;*/
+    justify-content: center;
+}
+
+.creationForm {
+    display: none;
+}
+
+div.creationForm textarea{
+    background-color: aliceblue;
+}
+
+table{
+    margin-top: 50px;
+    margin-left: 300px;
+}
+
+div.filter-form > *{
+    margin: 20px;
+}
+/* Dont want to display this styles */
+
+/*table, tr, td{*/
+/*    margin-top: 10%;*/
+/*    padding: 5px;*/
+/*    margin-left: 20%;*/
+/*    border: 1px solid black;*/
+/*    border-collapse: collapse;*/
+/*}*/
+
+/*td{*/
+/*    text-align: center;*/
+/*}*/

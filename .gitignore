@@ -1,0 +1,11 @@
+#/target/**.*
+#/out/**.*
+#
+#/src/main/**.*.class
+#.idea/**.*
+#repair-agency.iml
+
+out/
+.idea/
+repair-agency.iml
+target/
