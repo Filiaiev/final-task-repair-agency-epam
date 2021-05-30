@@ -10,16 +10,21 @@
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
 <%--                <a class="nav-link" href="#"><h6 class="text-ligth">Home</h6><span class="sr-only">(current)</span></a>--%>
-                <a class="nav-link" href="#">Home<span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="${pageContext.request.contextPath}/home">Home<span class="sr-only">(current)</span></a>
             </li>
 
             <c:if test="${roleId == Role.CLIENT.ordinal()}">
-                <li class="nav-item active ml-4">
-                    <button class="btn btn-outline-light" onclick="showHideCreationForm();">Create</button>
-                </li>
-
                 <li class="nav-item ml-4 active">
-                    <form method="post" name="controller" style="margin-bottom: 0">
+                    <form method="get" action="controller" style="margin-bottom: 0">
+                        <input type="hidden" name="command" value="goToCreationForm">
+                        <button class="btn btn-outline-light" type="submit">Create</button>
+                    </form>
+                </li>
+            </c:if>
+
+            <c:if test="${roleId != null}">
+                <li class="nav-item ml-4 active">
+                    <form method="get" action="controller" style="margin-bottom: 0">
                         <input type="hidden" name="command" value="getOrders">
                         <button class="btn btn-outline-light" type="submit">Orders</button>
                     </form>
@@ -32,7 +37,7 @@
             <c:if test="${roleId == Role.CLIENT.ordinal()}">
                 <h6 class="text-light ml-2">${client.cash} UAH</h6>
             </c:if>
-            <form class="form-inline my-2 my-xl-0" action="controller" method="get">
+            <form class="form-inline my-2 my-xl-0" action="controller" method="post">
                 <input type="hidden" name="command" value="logout">
                 <button class="btn btn-outline-light ml-3 my-sm-0" type="submit">Log out</button>
             </form>

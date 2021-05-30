@@ -24,7 +24,7 @@
 
         <tr>
             <td>
-                <form method="post" action="controller">
+                <form method="get" action="controller">
                     <input type="hidden" name="command" value="getOrderInfo"/>
                     <input type="hidden" name="orderId" value="${item.id}">
                     <input type="submit" value="View order info"/>

@@ -25,9 +25,18 @@ public class Controller extends HttpServlet {
         String cmd = req.getParameter("command");
         String forward = CommandContainer.getCommand(cmd).execute(req, resp);
         System.out.println(cmd + " processed!");
+        String method = req.getMethod();
+        System.out.println("Method = " + method + "\t" + "forward = " + forward);
 
         if(forward != null && !forward.isEmpty()){
-            req.getRequestDispatcher(forward).forward(req, resp);
+            if(method.equals("GET") || req.getAttribute("errorMessage") != null){
+                System.out.println("Req forward");
+                req.getRequestDispatcher(forward).forward(req, resp);
+            }else{
+                System.out.println("Req redirect");
+                resp.sendRedirect(req.getServletContext().getContextPath() + forward);
+            }
+//            req.getRequestDispatcher(forward).forward(req, resp);
         }
     }
 }

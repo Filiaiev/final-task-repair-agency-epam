@@ -6,14 +6,10 @@ import com.filiaiev.agency.entity.Order;
 import com.filiaiev.agency.entity.OrderStatus;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.text.DateFormat;
+import java.util.*;
+import java.util.Date;
 
 public class OrderDAO {
 
@@ -26,12 +22,12 @@ public class OrderDAO {
     private static final String SQL__GET_ORDERS_BY_STATUS =
             "SELECT * FROM order_headers WHERE status_id = ?;";
 
-    private static final String SQL__FIND_ALL_ORDERS = "SELECT * FROM order_headers;";
+    private static final String SQL__GET_ALL_ORDERS = "SELECT * FROM order_headers;";
 
-    private static final String SQL__FIND_ORDER_BY_ORDER_ID =
+    private static final String SQL__GET_ORDER_BY_ORDER_ID =
             "SELECT * FROM order_headers WHERE id = ?;";
 
-    private static final String SQL__FIND_ORDERS_BY_PERSON_ID =
+    private static final String SQL__GET_ORDERS_BY_PERSON_ID =
             "SELECT * FROM order_headers" +
             " JOIN clients ON clients.id = order_headers.client_id" +
             " WHERE person_id = ?;";
@@ -41,6 +37,10 @@ public class OrderDAO {
 
     private static final String SQL__UPDATE_STATUS_BY_ID =
             "UPDATE order_headers SET status_id = ? WHERE id = ?;";
+
+    private static final String SQL__COMPLETE_ORDER_BY_ID =
+            "UPDATE order_headers SET complete_date = NOW(), " +
+                    "status_id =" + OrderStatus.COMPLETED.ordinal() + " WHERE id = ?;";
 
     private static final String SQL__SET_ORDER_COST_BY_ID =
             "UPDATE order_headers SET cost = ? WHERE id = ?;";
@@ -96,7 +96,7 @@ public class OrderDAO {
 
         try{
             con = DBManager.getInstance().getConnection();
-            rs = con.createStatement().executeQuery(SQL__FIND_ALL_ORDERS);
+            rs = con.createStatement().executeQuery(SQL__GET_ALL_ORDERS);
             OrderMapper orderMapper = new OrderMapper();
             while(rs.next()){
                 orders.add(orderMapper.mapRow(rs));
@@ -197,7 +197,7 @@ public class OrderDAO {
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__FIND_ORDERS_BY_PERSON_ID);
+            ps = con.prepareStatement(SQL__GET_ORDERS_BY_PERSON_ID);
             ps.setInt(1, personId);
             rs = ps.executeQuery();
             OrderMapper orderMapper = new OrderMapper();
@@ -214,7 +214,7 @@ public class OrderDAO {
         return orders;
     }
 
-    public Order getOrderInstanceByOrderId(int orderId){
+    public Order getOrderByOrderId(int orderId){
         Order order = null;
         PreparedStatement ps = null;
         Connection con = null;
@@ -222,7 +222,7 @@ public class OrderDAO {
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__FIND_ORDER_BY_ORDER_ID);
+            ps = con.prepareStatement(SQL__GET_ORDER_BY_ORDER_ID);
             ps.setInt(1, orderId);
             rs = ps.executeQuery();
             OrderMapper orderMapper = new OrderMapper();
@@ -257,6 +257,10 @@ public class OrderDAO {
                 orderInfo.put("client_last_name", rs.getString("last_name"));
                 orderInfo.put("client_first_name", rs.getString("first_name"));
                 orderInfo.put("client_middle_name", rs.getString("middle_name"));
+                // TODO: DATE PARSE
+//                DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, new Locale("UK", "ua"));
+//                Date d = rs.getTimestamp("order_date");
+//                orderInfo.put("order_date", df.format(d));
                 orderInfo.put("order_date", rs.getString("order_date"));
                 orderInfo.put("complete_date", rs.getString("complete_date"));
                 orderInfo.put("cost", rs.getString("cost"));
@@ -307,6 +311,25 @@ public class OrderDAO {
             ps = con.prepareStatement(SQL__UPDATE_STATUS_BY_ID);
             ps.setInt(1, status.ordinal());
             ps.setInt(2, id);
+            ps.execute();
+
+            ps.close();
+        }catch (SQLException e){
+            DBManager.getInstance().rollbackAndClose(con);
+            System.out.println(e.getMessage());
+            return;
+        }
+        DBManager.getInstance().commitAndClose(con);
+    }
+
+    public void completeOrderById(int orderId){
+        PreparedStatement ps = null;
+        Connection con = null;
+
+        try{
+            con = DBManager.getInstance().getConnection();
+            ps = con.prepareStatement(SQL__COMPLETE_ORDER_BY_ID);
+            ps.setInt(1, orderId);
             ps.execute();
 
             ps.close();

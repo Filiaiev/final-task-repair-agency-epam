@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-public class LogInCommand extends Command{
+public class LogInCommand implements Command{
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -61,9 +61,9 @@ public class LogInCommand extends Command{
         session.setAttribute("roleId", user.getRoleId());
 
         forward = Paths.JSP__HOME;
-        if(user.getRoleId() == Role.MANAGER.ordinal()){
-            forward = CommandContainer.getCommand("getOrders").execute(req, resp);
-        }
+//        if(user.getRoleId() == Role.MANAGER.ordinal()){
+//            forward = CommandContainer.getCommand("getOrders").execute(req, resp);
+//        }
 //        resp.sendRedirect("home");
         return forward;
 //        return null;

@@ -1,16 +1,8 @@
-header{
-    background-color: cornsilk;
-    height: 40px;
-}
-
-.headerDiv{
-    display: flex;
-    flex-direction: row;
-}
-
 .error-message{
     color: red;
 }
 
-.status-holder{
-}
+/*input:invalid{*/
+/*    border-color: red;*/
+/*}*/
+

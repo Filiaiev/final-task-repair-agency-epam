@@ -17,7 +17,7 @@
 <%-- Switch between which content should be displayed by user role --%>
 <c:choose>
     <c:when test="${sessionScope.roleId == Role.CLIENT.ordinal()}">
-        <%@include file="user_home.jsp"%>
+        <%@include file="client_home.jsp"%>
     </c:when>
 
     <c:when test="${sessionScope.roleId == Role.MANAGER.ordinal()}">

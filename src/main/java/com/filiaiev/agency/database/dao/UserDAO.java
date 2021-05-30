@@ -15,7 +15,10 @@ public class UserDAO {
     private static final String SQL__INSERT_USER = "INSERT INTO users(email, login, pass, role_id)" +
             " VALUES(?, ?, ?, ?);";
 
-    public Integer insertUser(String email, String login, String pass, int roleId){
+    private static final String SQL__GET_USER_BY_EMAIL = "SELECT * FROM users WHERE " +
+            "email = ?;";
+
+    public Integer insertUser(String email, String login, String pass, int roleId) {
         PreparedStatement ps = null;
         Connection con = null;
         ResultSet rs = null;
@@ -36,7 +39,10 @@ public class UserDAO {
                 userId = rs.getInt(1);
             }
             ps.close();
-        }catch (SQLException e){
+        }
+        catch (SQLException e){
+            // TODO: add SQL INTEGRITY TO LOGGEER
+            System.out.println("Rollbacking");
             DBManager.getInstance().rollbackAndClose(con);
             e.printStackTrace();
             return null;
@@ -97,6 +103,34 @@ public class UserDAO {
         DBManager.getInstance().commitAndClose(con);
         return user;
     }
+
+    public User getUserByEmail(String email){
+        User user = null;
+        PreparedStatement ps = null;
+        Connection con = null;
+        ResultSet rs = null;
+
+        try{
+            con = DBManager.getInstance().getConnection();
+            ps = con.prepareStatement(SQL__GET_USER_BY_EMAIL);
+
+            ps.setString(1, email);
+            rs = ps.executeQuery();
+            if(rs.next()){
+                user = new UserMapper().mapRow(rs);
+            }
+
+            rs.close();
+            ps.close();
+        }catch (SQLException e){
+            DBManager.getInstance().rollbackAndClose(con);
+            e.printStackTrace();
+            return null;
+        }
+        DBManager.getInstance().commitAndClose(con);
+        return user;
+    }
+
 
 
     private static class UserMapper implements EntityMapper<User> {

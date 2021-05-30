@@ -1,4 +1,4 @@
-package com.filiaiev.agency.web.command.repairer;
+package com.filiaiev.agency.web.command;
 
 import com.filiaiev.agency.database.dao.OrderDAO;
 import com.filiaiev.agency.entity.OrderStatus;
@@ -10,13 +10,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class SetOrderStatusCommand extends Command {
+public class SetOrderStatusCommand implements Command {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int statusId = Integer.parseInt(req.getParameter("statusId"));
         int orderId = Integer.parseInt(req.getParameter("orderId"));
-        new OrderDAO().updateStatusById(OrderStatus.values()[statusId], orderId);
-        return CommandContainer.getCommand("getOrderInfo").execute(req, resp);
+        OrderDAO orderDAO = new OrderDAO();
+
+        if(statusId == OrderStatus.COMPLETED.ordinal()){
+            orderDAO.completeOrderById(orderId);
+        }else{
+            orderDAO.updateStatusById(OrderStatus.values()[statusId], orderId);
+        }
+        return "/controller?command=" + CommandContainer.getOrderInfoCmd
+                + "&orderId=" + orderId;
     }
 }

@@ -19,7 +19,7 @@ public class ClientDAO {
     private static final String SQL__GET_CLIENT_CASH_BY_CLIENT_ID = "SELECT cash FROM clients" +
             " WHERE id = ?;";
 
-    private static final String SQL__UPDATE_CLIENT_CASH_BY_ID = "UPDATE clients" +
+    private static final String SQL__SET_CLIENT_CASH_BY_ID = "UPDATE clients" +
             " SET cash = ? WHERE id = ?;";
 
     public static final String SQL__INSERT_CLIENT = "INSERT INTO clients(person_id)" +
@@ -124,13 +124,13 @@ public class ClientDAO {
         return cash;
     }
 
-    public void updateClientCashById(BigDecimal newCash, int clientId){
+    public void setClientCashById(BigDecimal newCash, int clientId){
         PreparedStatement ps = null;
         Connection con = null;
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__UPDATE_CLIENT_CASH_BY_ID);
+            ps = con.prepareStatement(SQL__SET_CLIENT_CASH_BY_ID);
             ps.setBigDecimal(1, newCash);
             ps.setInt(2, clientId);
             ps.execute();

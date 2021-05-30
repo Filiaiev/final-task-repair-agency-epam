@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Map;
 
-public class SetPaymentCommand extends Command {
+public class SetPaymentCommand implements Command {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,6 +31,6 @@ public class SetPaymentCommand extends Command {
 
         // Updating session value
         req.getSession().setAttribute("order_info", orderInfo);
-        return Paths.JSP__ORDER;
+        return "/controller?command=getOrderInfo&orderId=" + orderId;
     }
 }

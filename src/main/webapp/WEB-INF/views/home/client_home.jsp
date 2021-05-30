@@ -1,15 +1,15 @@
-<div id="creation-form" style="margin-top: 10%; display: none">
-    <div class="d-flex w-100 justify-content-center align-self-center">
-        <form class="form w-50" method="post" name="controller">
-            <div class="form-group text-center">
-                <label for="exampleFormControlTextarea1">Order text</label>
-                <textarea class="form-control" id="exampleFormControlTextarea1" name="orderText" rows="6" style="min-height: 100px; max-height: 400px"></textarea>
-                <button class="btn btn-dark mt-2" type="submit">Submit</button>
-                <input type="hidden" name="command" value="createOrder">
-            </div>
-        </form>
-    </div>
-</div>
+<%--<div id="creation-form" style="margin-top: 10%; display: none">--%>
+<%--    <div class="d-flex w-100 justify-content-center align-self-center">--%>
+<%--&lt;%&ndash;        <form class="form w-50" &lt;%&ndash;method="post" name="controller"&ndash;%&gt;>&ndash;%&gt;--%>
+<%--            <div class="text-center w-25">--%>
+<%--                <label for="order-text-holder">Order text</label>--%>
+<%--                <textarea class="form-control" id="order-text-holder" name="orderText" rows="6" style="min-height: 100px; max-height: 350px;"></textarea>--%>
+<%--                <button class="btn btn-dark mt-2" onclick="createOrder()">Submit</button>--%>
+<%--&lt;%&ndash;                <input type="hidden" name="command" value="createOrder">&ndash;%&gt;--%>
+<%--            </div>--%>
+<%--&lt;%&ndash;        </form>&ndash;%&gt;--%>
+<%--    </div>--%>
+<%--</div>--%>
 
 <%--<div class="userMenuBar">--%>
 <%--    <button onclick="createOrder()">Create</button><br>--%>
@@ -50,7 +50,7 @@
 
         <tr>
             <td>
-                <form method="post" action="controller">
+                <form method="get" action="controller">
                     <input type="hidden" name="command" value="getOrderInfo"/>
                     <input type="hidden" name="orderId" value="${item.id}">
                     <input type="submit" value="View order info"/>

@@ -9,21 +9,21 @@
     <div style="display: inline-flex; flex-direction: row;">
         <select name="filterTaskStatus" onchange="this.form.submit()">
             <%-- TODO: label == localization --%>
-            <option value="none" selected disabled hidden>Select com.filiaiev.agency.filter</option>
+            <option value="none" selected disabled hidden>Select</option>
             <c:forEach items="${OrderStatus.values()}" var="item">
                 <option>${item}</option>
             </c:forEach>
         </select>
 
         <select name="filterTaskRepairer" onchange="this.form.submit()">
-            <option value="none" selected disabled hidden>Select com.filiaiev.agency.filter</option>
+            <option value="none" selected disabled hidden>Select</option>
             <c:forEach items="${repairers}" var="item">
                 <option value="${item.id}">${item.lastName} ${item.firstName} ${item.middleName}</option>
             </c:forEach>
         </select>
     </div>
     <input type="hidden" name="command" value="filterBy">
-    <input type="submit" value="com.filiaiev.agency.filter" style="visibility: hidden">
+    <input type="submit" value="filter" style="visibility: hidden">
 </form>
 
 <form method="get" action="controller">
@@ -63,7 +63,7 @@
 
         <tr>
             <td>
-                <form method="post" action="controller">
+                <form method="get" action="controller">
                     <input type="hidden" name="command" value="getOrderInfo"/>
                     <input type="hidden" name="orderId" value="${item.id}">
                     <input type="submit" value="View order info"/>
