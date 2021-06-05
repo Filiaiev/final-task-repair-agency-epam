@@ -2,6 +2,7 @@ package com.filiaiev.agency.database.dao;
 
 import com.filiaiev.agency.database.DBManager;
 import com.filiaiev.agency.entity.Client;
+import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -10,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ClientDAO {
+
+    private static Logger logger = Logger.getLogger(ClientDAO.class);
 
     private static final String SQL__GET_CLIENT_BY_PERSON_ID = "SELECT * FROM clients" +
             " WHERE person_id = ?;";
@@ -39,7 +42,7 @@ public class ClientDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            e.printStackTrace();
+            logger.error("Cannot insert client", e);
             return false;
         }
         DBManager.getInstance().commitAndClose(con);
@@ -65,7 +68,7 @@ public class ClientDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            System.out.println(e.getMessage());
+            logger.error("Cannot get client by person id", e);
             return null;
         }
         DBManager.getInstance().commitAndClose(con);
@@ -91,7 +94,7 @@ public class ClientDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            System.out.println(e.getMessage());
+            logger.error("Cannot get client by id", e);
             return null;
         }
         DBManager.getInstance().commitAndClose(con);
@@ -117,7 +120,7 @@ public class ClientDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            System.out.println(e.getMessage());
+            logger.error("Cannot get client cash", e);
             return null;
         }
         DBManager.getInstance().commitAndClose(con);
@@ -138,7 +141,7 @@ public class ClientDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            System.out.println(e.getMessage());
+            logger.error("Cannot set client cash", e);
             return;
         }
         DBManager.getInstance().commitAndClose(con);
@@ -154,7 +157,8 @@ public class ClientDAO {
                 client.setPersonId(rs.getInt("person_id"));
                 return client;
             }catch (SQLException e){
-                throw new IllegalStateException(e);
+                logger.error("Cannot map client with given ResultSet", e);
+                return null;
             }
         }
     }

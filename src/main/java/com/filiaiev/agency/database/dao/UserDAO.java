@@ -3,10 +3,13 @@ package com.filiaiev.agency.database.dao;
 import com.filiaiev.agency.database.DBManager;
 import com.filiaiev.agency.database.util.Field;
 import com.filiaiev.agency.entity.User;
+import org.apache.log4j.Logger;
 
 import java.sql.*;
 
 public class UserDAO {
+
+    private static Logger logger = Logger.getLogger(UserDAO.class);
 
     private static final String SQL__GET_USER_BY_LOGIN = "SELECT * FROM users WHERE login = ?";
 
@@ -41,12 +44,11 @@ public class UserDAO {
             ps.close();
         }
         catch (SQLException e){
-            // TODO: add SQL INTEGRITY TO LOGGEER
-            System.out.println("Rollbacking");
             DBManager.getInstance().rollbackAndClose(con);
-            e.printStackTrace();
+            logger.error("Cannot insert new user with login '" + login + "'", e);
             return null;
         }
+
         DBManager.getInstance().commitAndClose(con);
         return userId;
     }
@@ -71,7 +73,7 @@ public class UserDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            e.printStackTrace();
+            logger.error("Cannot get user by id = " + userId, e);
             return null;
         }
         DBManager.getInstance().commitAndClose(con);
@@ -98,12 +100,14 @@ public class UserDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            e.printStackTrace();
+            logger.error("Cannot get user by login '" + login + "'", e);
+            return null;
         }
         DBManager.getInstance().commitAndClose(con);
         return user;
     }
 
+    // TODO : delete?
     public User getUserByEmail(String email){
         User user = null;
         PreparedStatement ps = null;
@@ -124,14 +128,12 @@ public class UserDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            e.printStackTrace();
+            logger.error("Getting user by email exception", e);
             return null;
         }
         DBManager.getInstance().commitAndClose(con);
         return user;
     }
-
-
 
     private static class UserMapper implements EntityMapper<User> {
         @Override
@@ -145,7 +147,8 @@ public class UserDAO {
                 user.setRoleId(rs.getInt(Field.USERS__ROLE_ID));
                 return user;
             }catch (SQLException e){
-                throw new IllegalStateException(e);
+                logger.error("Cannot map row with given ResultSet", e);
+                return null;
             }
         }
     }

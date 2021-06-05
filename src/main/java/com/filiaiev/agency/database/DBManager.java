@@ -1,5 +1,7 @@
 package com.filiaiev.agency.database;
 
+import org.apache.log4j.Logger;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -10,11 +12,13 @@ import java.sql.SQLException;
 public class DBManager {
 
     private static DBManager instance;
+    private static Logger logger = Logger.getLogger(DBManager.class);
 
     private DBManager(){}
 
     public static synchronized DBManager getInstance(){
         if(instance == null){
+            logger.debug("DBManager has been instantiated");
             instance = new DBManager();
         }
         return instance;
@@ -29,7 +33,8 @@ public class DBManager {
             DataSource ds = (DataSource)envContext.lookup("jdbc/repair_agency");
             con = ds.getConnection();
         } catch (NamingException ex) {
-            System.out.println("Cannot obtain a connection from the pool");
+            logger.fatal("Cannot obtain a connection from the pool");
+            throw new Error(ex);
         }
         return con;
     }
@@ -42,6 +47,7 @@ public class DBManager {
             con.commit();
             con.close();
         } catch (SQLException ex) {
+            logger.error("Committing fails");
             ex.printStackTrace();
         }
     }
@@ -54,7 +60,9 @@ public class DBManager {
             con.rollback();
             con.close();
         } catch (SQLException ex) {
+            logger.error("Rollback fails");
             ex.printStackTrace();
         }
+        logger.trace("Transaction has been rollbacked");
     }
 }

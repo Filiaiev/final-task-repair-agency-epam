@@ -3,16 +3,27 @@ package com.filiaiev.agency.database.dao;
 import com.filiaiev.agency.database.DBManager;
 import com.filiaiev.agency.database.util.Field;
 import com.filiaiev.agency.entity.Person;
+import org.apache.log4j.Logger;
 
 import java.sql.*;
 
 public class PersonDAO {
+
+    private static Logger logger = Logger.getLogger(PersonDAO.class);
 
     private static final String SQL__GET_PERSON_BY_USER_ID = "SELECT * FROM persons" +
             " WHERE user_id = ?";
 
     private static final String SQL__GET_PERSON_BY_ID = "SELECT * FROM persons" +
             " WHERE id = ?";
+
+    private static final String SQL__GET_PERSON_BY_EMPLOYEE_ID = "SELECT " +
+            "p.id, last_name, first_name, " +
+            "middle_name, birthdate, user_id " +
+            "FROM persons as p " +
+            "INNER JOIN employees as e " +
+            "ON e.person_id = p.id " +
+            "WHERE e.id = ?;";
 
     private static final String SQL__INSERT_PERSON = "INSERT INTO" +
             " persons(first_name, middle_name, last_name, birthdate, user_id)" +
@@ -43,7 +54,7 @@ public class PersonDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            e.printStackTrace();
+            logger.error("Cannot insert person with user id = " + userId, e);
             return null;
         }
         DBManager.getInstance().commitAndClose(con);
@@ -69,7 +80,8 @@ public class PersonDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            System.out.println(e.getMessage());
+            logger.error("Cannot get person by user id = " + userId, e);
+            return null;
         }
         DBManager.getInstance().commitAndClose(con);
         return person;
@@ -94,7 +106,33 @@ public class PersonDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            System.out.println(e.getMessage());
+            logger.error("Cannot get person by person id = " + person, e);
+            return null;
+        }
+        DBManager.getInstance().commitAndClose(con);
+        return person;
+    }
+
+    public Person getPersonByEmployeeId(int employeeId){
+        Person person = null;
+        PreparedStatement ps = null;
+        Connection con = null;
+        ResultSet rs = null;
+
+        try{
+            con = DBManager.getInstance().getConnection();
+            ps = con.prepareStatement(SQL__GET_PERSON_BY_EMPLOYEE_ID);
+            ps.setInt(1, employeeId);
+            rs = ps.executeQuery();
+
+            if(rs.next()){
+                person = new PersonMapper().mapRow(rs);
+            }
+            rs.close();
+            ps.close();
+        }catch (SQLException e){
+            DBManager.getInstance().rollbackAndClose(con);
+            logger.error("Cannot get person by employee id = " + employeeId, e);
             return null;
         }
         DBManager.getInstance().commitAndClose(con);
@@ -114,7 +152,8 @@ public class PersonDAO {
                 person.setUserId(rs.getInt(Field.PERSONS__USER_ID));
                 return person;
             }catch (SQLException e){
-                throw new IllegalStateException(e);
+                logger.error("Cannot map person with given ResultSet", e);
+                return null;
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.filiaiev.agency.web.command;
+package com.filiaiev.agency.web.command.auth;
 
 import com.filiaiev.agency.database.dao.ClientDAO;
 import com.filiaiev.agency.database.dao.EmployeeDAO;
@@ -9,7 +9,8 @@ import com.filiaiev.agency.entity.Client;
 import com.filiaiev.agency.entity.Person;
 import com.filiaiev.agency.entity.Role;
 import com.filiaiev.agency.entity.User;
-import com.filiaiev.agency.web.util.Paths;
+import com.filiaiev.agency.web.command.Command;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,31 +18,23 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-public class LogInCommand implements Command{
+public class LogInCommand implements Command {
+
+    private static Logger logger = Logger.getLogger(LogInCommand.class);
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("Login command start");
-        if(req.getSession().getAttribute("user") != null){
-            System.out.println("I`M NOT NULL");
-//            resp.sendRedirect("home");
-//            return null;
-            return Paths.JSP__HOME;
-        }
-        /*
-            * TODO: Check roles
-            *       print wrong login/pass data
-        */
-//        if(req.getSession(false).getAttribute("user") != null){
-//            return Paths.JSP__USER_HOME;
-//        }
         String login = req.getParameter("userLogin");
         String pass = DBUtil.hash(req.getParameter("userPass"));
         User user = new UserDAO().getUserByLogin(login);
 
-        String forward = null;
-        if(user == null || !pass.equals(user.getPass())) {
-            return "error.jsp";
+        if(user == null) {
+            req.getSession().setAttribute("loginMessage", "user_not_found");
+            return "/";
+        }else if(!pass.equals(user.getPass())){
+            logger.info("Wrong password entered for user (" + user.getLogin() + ")");
+            req.getSession().setAttribute("loginMessage", "wrong_login_or_pass");
+            return "/";
         }
 
         HttpSession session = req.getSession();
@@ -50,22 +43,21 @@ public class LogInCommand implements Command{
         if(user.getRoleId() == Role.CLIENT.ordinal()){
             Client client = new ClientDAO().getClientByPersonId(person.getId());
             session.setAttribute("client", client);
+            logger.info("Client #" + client.getId() + "(" + user.getLogin() + ") has logged in");
         }else if(user.getRoleId() == Role.MANAGER.ordinal()){
             session.setAttribute("repairers", new EmployeeDAO().getAllRepairersInfo());
+            System.out.println(session.getAttribute("repairers"));
+            logger.info("Manager " + "(" + user.getLogin() + ") has logged in");
         }else if(user.getRoleId() == Role.REPAIRER.ordinal()){
-            session.setAttribute("employeeId", new EmployeeDAO().getEmployeeByPersonId(person.getId()).getId());
+            int employeeId = new EmployeeDAO().getEmployeeByPersonId(person.getId()).getId();
+            session.setAttribute("employeeId", employeeId);
+            logger.info("Repairer #" + employeeId + "(" + user.getLogin() + ") has logged in");
         }
 
         session.setAttribute("user", user);
         session.setAttribute("person", person);
         session.setAttribute("roleId", user.getRoleId());
 
-        forward = Paths.JSP__HOME;
-//        if(user.getRoleId() == Role.MANAGER.ordinal()){
-//            forward = CommandContainer.getCommand("getOrders").execute(req, resp);
-//        }
-//        resp.sendRedirect("home");
-        return forward;
-//        return null;
+        return "/controller?command=toHome";
     }
 }

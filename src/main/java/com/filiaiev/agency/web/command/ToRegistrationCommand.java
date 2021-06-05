@@ -7,11 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class LogOutCommand implements Command {
+public class ToRegistrationCommand implements Command{
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getSession(false).invalidate();
-//        req.getRequestDispatcher(Paths.JSP__LOGIN).include(req, resp);
-        return Paths.JSP__LOGIN;
+        return Paths.JSP__REGISTER;
     }
 }

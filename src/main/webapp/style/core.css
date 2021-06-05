@@ -2,7 +2,25 @@
     color: red;
 }
 
-/*input:invalid{*/
-/*    border-color: red;*/
-/*}*/
+.page-button{
+    border: none;
+    background-color: inherit;
+}
 
+.filter-div{
+    margin-left: 40px;
+}
+
+.filter-div div{
+    margin-right: 40px;
+}
+
+.filter-radio-div label, input{
+    padding-left: 15px;
+    padding-right: 15px;
+    text-align: center;
+}
+
+.no-price-td{
+    background-color: lightgrey;
+}

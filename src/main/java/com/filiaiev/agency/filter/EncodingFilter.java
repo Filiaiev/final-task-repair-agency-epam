@@ -1,17 +1,24 @@
 package com.filiaiev.agency.filter;
 
+import org.apache.log4j.Logger;
+
 import javax.servlet.*;
 import java.io.IOException;
 
 public class EncodingFilter implements Filter {
 
+    private static Logger logger = Logger.getLogger(EncodingFilter.class);
+
     private static String encoding = null;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        System.out.println("Encoding com.filiaiev.agency.filter init start");
+        logger.debug("Encoding filter init started");
+
         encoding = filterConfig.getInitParameter("encoding");
-        System.out.println("encoding is: " + encoding);
+
+        logger.trace("Filter config encoding: " + encoding);
+        logger.debug("Encoding filter init successfully ended");
     }
 
     @Override
@@ -24,6 +31,6 @@ public class EncodingFilter implements Filter {
 
     @Override
     public void destroy() {
-        System.out.println("Encoding com.filiaiev.agency.filter destroy start");
+        logger.debug("Encoding filter destroying");
     }
 }

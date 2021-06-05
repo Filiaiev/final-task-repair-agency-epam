@@ -1,4 +1,4 @@
-package com.filiaiev.agency.web.command.client.moveto;
+package com.filiaiev.agency.web.command.joint;
 
 import com.filiaiev.agency.web.command.Command;
 import com.filiaiev.agency.web.util.Paths;
@@ -8,10 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class GoToHomePage implements Command {
-
+public class HomePage implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        return Paths.JSP__HOME;
+        req.getRequestDispatcher(Paths.JSP__HOME).forward(req, resp);
+        return null;
     }
 }

@@ -1,14 +1,14 @@
 <%@include file="lib.jsp"%>
 <link rel="stylesheet" href="style/order.css" type="text/css"/>
 
-<fmt:setBundle basename="l18n/app_uk"/>
-<fmt:message key="full_name" var="full_name"/>
-<fmt:message key="birth_date" var="birth_date"/>
+<fmt:message key="person.full_name" var="full_name"/>
+<fmt:message key="person.birth_date" var="birth_date"/>
 <fmt:message key="email" var="email"/>
 <fmt:message key="cash" var="cash"/>
-<fmt:message key="personal_data" var="personal_data"/>
+<fmt:message key="person.personal_data" var="personal_data"/>
 <fmt:message key="refill_user_account" var="refill_user_account"/>
 <fmt:message key="enter_amount" var="enter_amount"/>
+<fmt:message key="currency.uah" var="currency"/>
 
 <html>
 <head>
@@ -26,23 +26,23 @@
             </thead>
 
             <tr>
-                <th scope="row"><c:out value="${email}"/></th>
-                <td>${userEmail}</td>
+                <th scope="row">${email}</th>
+                <td><c:out value="${userEmail}"/></td>
             </tr>
 
             <tr>
-                <th scope="row"><c:out value="${full_name}"/></th>
-                <td>${personInfo.lastName} ${personInfo.firstName} ${personInfo.middleName}</td>
+                <th scope="row">${full_name}</th>
+                <td><c:out value="${personInfo.lastName} ${personInfo.firstName} ${personInfo.middleName}"/></td>
             </tr>
 
             <tr>
-                <th scope="row"><c:out value="${birth_date}"/></th>
-                <td>${personInfo.birthDate}</td>
+                <th scope="row">${birth_date}</th>
+                <td><fmt:formatDate value="${personInfo.birthDate}" dateStyle="LONG"/></td>
             </tr>
 
             <tr>
-                <th scope="row"><c:out value="${cash}"/></th>
-                <td>${clientInfo.cash}</td>
+                <th scope="row">${cash}</th>
+                <td>${clientInfo.cash} ${currency}</td>
             </tr>
     </table>
     </div>

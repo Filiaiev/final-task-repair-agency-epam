@@ -3,19 +3,24 @@ package com.filiaiev.agency.database.dao;
 import com.filiaiev.agency.database.DBManager;
 import com.filiaiev.agency.entity.Employee;
 import com.filiaiev.agency.entity.Person;
+import org.apache.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EmployeeDAO {
 
+    private static Logger logger = Logger.getLogger(EmployeeDAO.class);
+
     private static final String SQL__GET_ALL_REPAIRERS =
             "SELECT" +
-            " p.id, p.last_name," +
+            " p.id, e.id as employee_id, p.last_name," +
             " p.first_name, p.middle_name," +
             " p.birthdate, p.user_id" +
             " FROM persons as p" +
@@ -30,8 +35,8 @@ public class EmployeeDAO {
     private static final String SQL__GET_EMPLOYEE_BY_PERSON_ID =
             "SELECT * FROM employees WHERE person_id = ?;";
 
-    public List<Person> getAllRepairersInfo(){
-        List<Person> repairers = new ArrayList<>();
+    public Map<String, Person> getAllRepairersInfo(){
+        Map<String, Person> repairers = new HashMap<>();
         Connection con = null;
         ResultSet rs = null;
 
@@ -40,12 +45,14 @@ public class EmployeeDAO {
             rs = con.createStatement().executeQuery(SQL__GET_ALL_REPAIRERS);
             EmployeePersonMapper personMapper = new EmployeePersonMapper();
             while(rs.next()){
-                repairers.add(personMapper.mapRow(rs));
+                repairers.put(rs.getString("employee_id"), personMapper.mapRow(rs));
             }
+            logger.trace("Got all repairers --> " + repairers.size() + " persons");
             rs.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            System.out.println(e.getMessage());
+            logger.error("Cannot get repairers info", e);
+            return null;
         }
         DBManager.getInstance().commitAndClose(con);
         return repairers;
@@ -70,7 +77,8 @@ public class EmployeeDAO {
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
-            System.out.println(e.getMessage());
+            logger.error("Cannot get employee by person id = " + personId, e);
+            return null;
         }
         DBManager.getInstance().commitAndClose(con);
         return employee;
@@ -86,7 +94,8 @@ public class EmployeeDAO {
                 employee.setId(rs.getInt("id"));
                 employee.setPersonId(rs.getInt("person_id"));
             }catch (SQLException e){
-                throw new IllegalStateException(e);
+                logger.error("Cannot map Employee with given ResultSet", e);
+                return null;
             }
             return employee;
         }

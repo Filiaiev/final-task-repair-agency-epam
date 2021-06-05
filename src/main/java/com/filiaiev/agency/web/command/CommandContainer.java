@@ -1,11 +1,15 @@
 package com.filiaiev.agency.web.command;
 
-import com.filiaiev.agency.web.command.client.CreateOrderCommand;
-import com.filiaiev.agency.web.command.client.GoToCreationFormCommand;
+import com.filiaiev.agency.web.command.client.*;
+import com.filiaiev.agency.web.command.joint.HomePage;
+import com.filiaiev.agency.web.command.joint.SetLocaleCommand;
+import com.filiaiev.agency.web.command.joint.SetOrderStatusCommand;
+import com.filiaiev.agency.web.command.joint.ToHomePageCommand;
+import com.filiaiev.agency.web.command.auth.LogInCommand;
+import com.filiaiev.agency.web.command.auth.LogOutCommand;
+import com.filiaiev.agency.web.command.joint.order.GetOrderInfoCommand;
+import com.filiaiev.agency.web.command.joint.order.GetOrdersCommand;
 import com.filiaiev.agency.web.command.manager.*;
-import com.filiaiev.agency.web.command.client.CreateCommentCommand;
-import com.filiaiev.agency.web.command.client.PayCommand;
-import com.filiaiev.agency.web.command.client.moveto.GoToHomePage;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -27,20 +31,26 @@ public class CommandContainer {
         commands.put(getOrderInfoCmd, new GetOrderInfoCommand());
 
         //go_to
-        commands.put("goToHome", new GoToHomePage());
+        commands.put("toHome", new ToHomePageCommand());
+        commands.put("homePage", new HomePage());
+        commands.put("toProfile", new ToProfileCommand());
+        commands.put("toRegistration", new ToRegistrationCommand());
+
+        //bundle
+        commands.put("setLocale", new SetLocaleCommand());
 
         //client
         commands.put("createComment", new CreateCommentCommand());
         commands.put(clientPayCmd, new PayCommand());
-        commands.put("goToCreationForm", new GoToCreationFormCommand());
+        commands.put("toCreationForm", new ToCreationFormCommand());
 
         //manager
         commands.put("setPayment", new SetPaymentCommand());
         commands.put("setRepairer", new SetRepairerCommand());
         commands.put("setClientCash", new SetClientCashCommand());
 
-        commands.put("filterBy", new FilterByCommand());
-        commands.put("sortOrders", new SortOrdersCommand());
+        //filtering
+        // NONE
 
         commands.put(goToClientInfoCmd, new ShowClientInfoCommand());
 

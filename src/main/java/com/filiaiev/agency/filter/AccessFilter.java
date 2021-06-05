@@ -1,7 +1,9 @@
 package com.filiaiev.agency.filter;
 
 import com.filiaiev.agency.entity.Role;
+import com.filiaiev.agency.web.command.CommandContainer;
 import com.filiaiev.agency.web.util.Paths;
+import org.apache.log4j.Logger;
 
 import javax.servlet.*;
 import javax.servlet.Filter;
@@ -12,17 +14,17 @@ import java.util.*;
 
 public class AccessFilter implements Filter {
 
+    private static Logger logger = Logger.getLogger(AccessFilter.class);
+
     private static Map<Role, List<String>> accessMap = new HashMap<>();
     private static List<String> outOfControl = new ArrayList<>();
     private static List<String> joint = new ArrayList<>();
     private static List<String> getMethodDisallowed = new ArrayList<>();
-
-//    private static List<String> logged = new ArrayList<>();
-//    private static List<String> disallowed = new ArrayList<>();
+    private static List<String> allowedAnywhere = new ArrayList<>();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        System.out.println("Access EncodingFilter init start");
+        logger.debug("Access filter init started");
 //        EncodingFilter.super.init(filterConfig);
         ServletContext servletContext = filterConfig.getServletContext();
         accessMap.put(Role.MANAGER, asList(filterConfig.getInitParameter("manager")));
@@ -32,11 +34,12 @@ public class AccessFilter implements Filter {
 //        outOfControl = asList(filterConfig.getInitParameter("out-of-control"));
         joint = asList(filterConfig.getInitParameter("joint"));
         getMethodDisallowed = asList(filterConfig.getInitParameter("get-method-disallowed"));
+        allowedAnywhere = asList(filterConfig.getInitParameter("allowed-anywhere"));
 
 //        logged = asList(filterConfig.getInitParameter("logged"));
 //        disallowed = asList(filterConfig.getInitParameter("disallowed"));
 
-        System.out.println("Access EncodingFilter init end");
+        logger.debug("Access filter init successfully ended");
     }
 
     @Override
@@ -46,50 +49,58 @@ public class AccessFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain filterChain) throws IOException, ServletException {
-//        ServletContext servletContext = servletRequest.getServletContext();
         if(accessAllowed(req)){
             filterChain.doFilter(req, resp);
         }else{
-            String errorMessage = "You don`t have permission to access this resource";
-            req.setAttribute("errorMessage", errorMessage);
+            logger.trace("Access to command '" + req.getParameter("command") + "' disallowed. "
+                    + "Forwarding to error page");
             req.getRequestDispatcher(Paths.JSP__ERROR).forward(req, resp);
         }
     }
 
-    private boolean accessAllowed(ServletRequest request){
-        HttpServletRequest httpRequest = (HttpServletRequest)request;
-        String commandName = request.getParameter("command");
-        System.out.println(Collections.list(request.getParameterNames()));
-        System.out.println("Servlet is " + httpRequest.getRequestURI());
-        System.out.println("Context path is " + httpRequest.getContextPath());
+    private boolean accessAllowed(ServletRequest req){
+        HttpServletRequest httpRequest = (HttpServletRequest)req;
+        String commandName = req.getParameter("command");
+        System.out.println(Collections.list(req.getParameterNames()));
 
-        if(commandName == null || commandName.isEmpty()){
+        if(commandName == null || commandName.isEmpty() || CommandContainer.getCommand(commandName) == null){
+            req.setAttribute("errorKey", "bad_request");
             return false;
         }
 
+        if(allowedAnywhere.contains(commandName)){
+            return true;
+        }
+
         if(httpRequest.getMethod().equals("GET") && getMethodDisallowed.contains(commandName)){
+            req.setAttribute("errorKey", "get_disallowed");
+            logger.trace("Requested command '" + commandName + "' has disallowed access via GET");
             return false;
         }else if(httpRequest.getMethod().equals("POST") && getMethodDisallowed.contains(commandName)){
             return true;
         }
 
-//        if(outOfControl.contains(commandName)){
-//            return true;
-//        }
-
         HttpSession session = httpRequest.getSession(false);
         if(session == null){
+            logger.trace("Session is null. No access to command '" + commandName + "'");
             return false;
         }
 
         Integer roleId = (Integer)session.getAttribute("roleId");
         if(roleId == null){
+            logger.trace("Unlogged user tried to access command '" + commandName + "'");
+            req.setAttribute("errorKey", "user_not_logged");
             return false;
         }else if(joint.contains(commandName)){
             return true;
         }
 
-        return accessMap.get(Role.values()[roleId]).contains(commandName);
+        if(accessMap.get(Role.values()[roleId]).contains(commandName)){
+            return true;
+        }else{
+            req.setAttribute("errorKey", "no_permission_to_resource");
+            return false;
+        }
     }
 
     private List<String> asList(String params){

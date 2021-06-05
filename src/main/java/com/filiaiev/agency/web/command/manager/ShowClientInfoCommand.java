@@ -3,12 +3,11 @@ package com.filiaiev.agency.web.command.manager;
 import com.filiaiev.agency.database.dao.ClientDAO;
 import com.filiaiev.agency.database.dao.PersonDAO;
 import com.filiaiev.agency.database.dao.UserDAO;
-import com.filiaiev.agency.entity.Client;
-import com.filiaiev.agency.entity.Entity;
-import com.filiaiev.agency.entity.Person;
+import com.filiaiev.agency.entity.*;
 import com.filiaiev.agency.web.command.Accessor;
 import com.filiaiev.agency.web.command.Command;
 import com.filiaiev.agency.web.util.Paths;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,16 +15,22 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-public class ShowClientInfoCommand implements Command, Accessor {
+public class ShowClientInfoCommand implements Command {
+
+    private static Logger logger = Logger.getLogger(ShowClientInfoCommand.class);
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int clientId = Integer.parseInt(req.getParameter("clientId"));
         Client client = new ClientDAO().getClientById(clientId);
 
-        if(!isAccessible(req, client)){
-            String errorMessage = "no_client_found";
-            req.setAttribute("errorMessage", errorMessage);
+        if(!new ClientInfoAccessor().isAccessible(req, client)){
+            String errorKey = "no_client_found";
+            req.setAttribute("errorKey", errorKey);
+            logger.trace("Client #" + clientId + "has been requested by " +
+                    Role.values()[(int)req.getSession().getAttribute("roleId")].name()
+                    + " (" + ((User)req.getSession().getAttribute("user")).getLogin() + ")" +
+                    " but no client was found for this role");
             return Paths.JSP__ERROR;
         }
 
@@ -39,9 +44,11 @@ public class ShowClientInfoCommand implements Command, Accessor {
         return Paths.JSP__CLIENT_INFO;
     }
 
-    @Override
-    public boolean isAccessible(HttpServletRequest req, Entity o) {
-        Client client = (Client)o;
-        return client != null;
+    private static class ClientInfoAccessor implements Accessor{
+        @Override
+        public boolean isAccessible(HttpServletRequest req, Entity o) {
+            Client client = (Client)o;
+            return client != null;
+        }
     }
 }

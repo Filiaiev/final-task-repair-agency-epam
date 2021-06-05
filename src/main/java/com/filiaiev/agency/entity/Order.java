@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 public class Order extends Entity implements Comparable<Order>{
 
     private int client_id;
-    private int worker_id;
+    private Integer worker_id;
     private Timestamp order_date;
     private Timestamp complete_date;
     private BigDecimal cost;
@@ -22,11 +22,11 @@ public class Order extends Entity implements Comparable<Order>{
         this.client_id = client_id;
     }
 
-    public int getWorkerId() {
+    public Integer getWorkerId() {
         return worker_id;
     }
 
-    public void setWorkerId(int worker_id) {
+    public void setWorkerId(Integer worker_id) {
         this.worker_id = worker_id;
     }
 

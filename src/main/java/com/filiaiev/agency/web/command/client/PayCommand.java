@@ -5,9 +5,11 @@ import com.filiaiev.agency.database.dao.OrderDAO;
 import com.filiaiev.agency.entity.Client;
 import com.filiaiev.agency.entity.Order;
 import com.filiaiev.agency.entity.OrderStatus;
+import com.filiaiev.agency.entity.User;
 import com.filiaiev.agency.web.command.Command;
 import com.filiaiev.agency.web.command.CommandContainer;
 import com.filiaiev.agency.web.util.Paths;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,27 +21,29 @@ import java.util.Map;
 
 public class PayCommand implements Command {
 
+    private static Logger logger = Logger.getLogger(PayCommand.class);
+
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("PAY COMMAND EXECUTION");
         HttpSession session = req.getSession(false);
+        int orderId = Integer.parseInt(req.getParameter("orderId"));
 
         OrderDAO orderDAO = new OrderDAO();
         ClientDAO clientDAO = new ClientDAO();
-        int orderId = Integer.parseInt(req.getParameter("orderId"));
 
         Client client = (Client)session.getAttribute("client");
         Order order = orderDAO.getOrderByOrderId(orderId);
+        User user = (User)session.getAttribute("user");
+
         BigDecimal clientCash = clientDAO.getClientCashByClientId(client.getId());
 
-        String forward = Paths.JSP__ORDER;
-        String paymentMessageKey = null;
-
+        String paymentStatus = null;
         if(clientCash.compareTo(order.getCost()) < 0){
-            paymentMessageKey = "payment_not_enough_money";
+            paymentStatus = "not_enough_money";
+            logger.trace("Client #" + client.getId() + "(" + user.getLogin() + ") " +
+                    "hasn`t got enough cash to pay for Order #" + order.getId());
+            session.setAttribute("paymentStatus", paymentStatus);
         }else{
-            paymentMessageKey = "payment_success";
-
             BigDecimal newCash = clientCash.subtract(order.getCost());
             clientDAO.setClientCashById(newCash, client.getId());
             orderDAO.updateStatusById(OrderStatus.PAID, order.getId());
@@ -54,12 +58,13 @@ public class PayCommand implements Command {
             session.setAttribute("order", order);
             session.setAttribute("client", client);
             session.setAttribute("order_info", order_info);
+
+            logger.info("Client #" + client.getId() + "(" + user.getLogin() + ") " +
+                    "paid for Order #" + orderId);
         }
-//        req.setAttribute("payment_message_key", paymentMessageKey);
-//        req.getSession().setAttribute("payment_message_key", paymentMessageKey);
-        System.out.println(paymentMessageKey);
+
+        System.out.println(paymentStatus);
         return "/controller?command=" + CommandContainer.getOrderInfoCmd +
                 "&orderId=" + orderId;
-//        return null;
     }
 }

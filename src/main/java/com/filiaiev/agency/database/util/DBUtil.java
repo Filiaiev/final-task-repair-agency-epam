@@ -7,7 +7,7 @@ public class DBUtil {
 
     private DBUtil(){}
 
-    private static String algorithm = "SHA-256";
+    private static final String algorithm = "SHA-256";
 
     public static String hash(String input) {
         MessageDigest digest = null;

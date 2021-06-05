@@ -3,10 +3,24 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
+
+    <context-param>
+        <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+        <param-value>i18n.app</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>locales</param-name>
+        <param-value>en uk</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
+        <param-value>uk</param-value>
+    </context-param>
     
     <!-- Filters  -->
-    
-    <!-- Character encoding -->
+
     <filter>
         <filter-name>Character Encoding Filter</filter-name>
         <filter-class>com.filiaiev.agency.filter.EncodingFilter</filter-class>
@@ -17,29 +31,8 @@
     </filter>
     <filter-mapping>
         <filter-name>Character Encoding Filter</filter-name>
-        <url-pattern>/jsp*</url-pattern>
+        <url-pattern>/*</url-pattern>
         <servlet-name>Controller</servlet-name>
-    </filter-mapping>
-
-    <filter>
-        <filter-name>Logged filter</filter-name>
-        <filter-class>com.filiaiev.agency.filter.LoggedFilter</filter-class>
-<!--        <init-param>-->
-<!--            <param-name>command</param-name>-->
-<!--            <param-value>login</param-value>-->
-<!--        </init-param>-->
-    </filter>
-    <filter-mapping>
-        <filter-name>Logged filter</filter-name>
-        <servlet-name>Login</servlet-name>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Logged filter</filter-name>
-        <servlet-name>RegisterServlet</servlet-name>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>Logged filter</filter-name>
-        <servlet-name>Home</servlet-name>
     </filter-mapping>
 
     <!-- Commands access -->
@@ -59,53 +52,29 @@
 
         <init-param>
             <param-name>client</param-name>
-            <param-value>createComment createOrder clientPay goToCreationForm setOrderStatus</param-value>
+            <param-value>createComment createOrder clientPay toCreationForm setOrderStatus toProfile</param-value>
         </init-param>
 
         <init-param>
             <param-name>joint</param-name>
-            <param-value>getOrders getOrderInfo logout</param-value>
+            <param-value>getOrders getOrderInfo logout toHome</param-value>
         </init-param>
 
-<!--        <init-param>-->
-<!--            <param-name>out-of-control</param-name>-->
-<!--            <param-value>logout</param-value>-->
-<!--        </init-param>-->
+        <init-param>
+            <param-name>allowed-anywhere</param-name>
+            <param-value>setLocale toRegistration</param-value>
+        </init-param>
 
         <init-param>
             <param-name>get-method-disallowed</param-name>
-            <param-value>login register setOrderStatus</param-value>
+            <param-value>login register setOrderStatus homePage clientPay setPayment setRepairer setClientCash</param-value>
         </init-param>
-
-<!--        <init-param>-->
-<!--            <param-name>logged</param-name>-->
-<!--            <param-value>home login register</param-value>-->
-<!--        </init-param>-->
-
-<!--        <init-param>-->
-<!--            <param-name>disallowed</param-name>-->
-<!--            <param-value>order</param-value>-->
-<!--        </init-param>-->
-
-<!--        <init-param>-->
-<!--            <param-name>servlet-mappings</param-name>-->
-<!--            <param-value>/home /login /register</param-value>-->
-<!--        </init-param>-->
 
     </filter>
     <filter-mapping>
         <filter-name>Access Filter</filter-name>
         <servlet-name>Controller</servlet-name>
     </filter-mapping>
-
-<!--    <filter-mapping>-->
-<!--        <filter-name>Access Filter</filter-name>-->
-<!--        <url-pattern>/*</url-pattern>-->
-<!--    </filter-mapping>-->
-<!--    <filter-mapping>-->
-<!--        <filter-name>Access Filter</filter-name>-->
-<!--        <url-pattern>*.jsp</url-pattern>-->
-<!--    </filter-mapping>-->
 
     <jsp-config>
         <jsp-property-group>
@@ -116,7 +85,7 @@
     </jsp-config>
 
     <welcome-file-list>
-        <welcome-file>/WEB-INF/views/login.jsp</welcome-file>
+        <welcome-file>/WEB-INF/views/auth/login.jsp</welcome-file>
     </welcome-file-list>
 
     <servlet>
@@ -124,108 +93,23 @@
         <servlet-class>com.filiaiev.agency.web.Controller</servlet-class>
     </servlet>
     
-    <servlet>
-        <servlet-name>Home</servlet-name>
-        <jsp-file>/WEB-INF/views/home/home.jsp</jsp-file>
-    </servlet>
-
-<!--    <servlet>-->
-<!--        <servlet-name>Order</servlet-name>-->
-<!--        <jsp-file>/WEB-INF/views/order.jsp</jsp-file>-->
-<!--    </servlet>-->
-    
-    <servlet>
-        <servlet-name>Login</servlet-name>
-        <jsp-file>/WEB-INF/views/login.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>RegisterServlet</servlet-name>
-        <jsp-file>/WEB-INF/views/register.jsp</jsp-file>
-    </servlet>
-
-<!--    <servlet>-->
-<!--        <servlet-name>CreateOrder</servlet-name>-->
-<!--        <jsp-file>/WEB-INF/views/order_creation.jsp</jsp-file>-->
-<!--    </servlet>-->
-
-    <!--    <servlet-mapping>-->
-    <!--        <servlet-name>LoginServlet</servlet-name>-->
-    <!--        <url-pattern>/login</url-pattern>-->
-    <!--    </servlet-mapping>-->
-
-
-<!--    <servlet>-->
-<!--        <servlet-name>Client</servlet-name>-->
-<!--        <jsp-file>/jsp/cli</jsp-file>-->
-<!--    </servlet>-->
-    
-    <servlet-mapping>
-        <servlet-name>Home</servlet-name>
-        <url-pattern>/home</url-pattern>
-    </servlet-mapping>
-
-<!--    <servlet-mapping>-->
-<!--        <servlet-name>Order</servlet-name>-->
-<!--        <url-pattern>/order</url-pattern>-->
-<!--    </servlet-mapping>-->
-
-    <servlet-mapping>
-        <servlet-name>Login</servlet-name>
-        <url-pattern>/login</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>RegisterServlet</servlet-name>
-        <url-pattern>/register</url-pattern>
-    </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>Controller</servlet-name>
         <url-pattern>/controller</url-pattern>
     </servlet-mapping>
 
-<!--    <security-role>-->
-<!--        <role-name>NobodyHasThisRole</role-name>-->
-<!--    </security-role>-->
-
-<!--    <security-constraint>-->
-<!--        <web-resource-collection>-->
-<!--            <web-resource-name>JSP Files</web-resource-name>-->
-<!--            <description>No direct access to JSP files</description>-->
-<!--            <url-pattern>/client.jsp</url-pattern>-->
-<!--&lt;!&ndash;            <http-method>POST</http-method>&ndash;&gt;-->
-<!--&lt;!&ndash;            <http-method>GET</http-method>&ndash;&gt;-->
-<!--            <http-method-omission>HEAD</http-method-omission>-->
-<!--        </web-resource-collection>-->
-<!--        <auth-constraint>-->
-<!--            <description>No direct browser access to JSP files</description>-->
-<!--&lt;!&ndash;            <role-name>NobodyHasThisRole</role-name>&ndash;&gt;-->
-<!--        </auth-constraint>-->
-<!--    </security-constraint>-->
-
-
-
-    <!--    <servlet>-->
-<!--        <servlet-name>LoginServlet</servlet-name>-->
-<!--        <servlet-class>com.filiaiev.agency.web.servlet.LoginServlet</servlet-class>-->
-<!--    </servlet>-->
-
-
-
     <listener>
         <listener-class>com.filiaiev.agency.web.listener.ContextListener</listener-class>
     </listener>
 
-<!--    <error-page>-->
-<!--        <error-code>404</error-code>-->
-<!--        <location>/WEB-INF/views/error.jsp</location>-->
-<!--    </error-page>-->
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/WEB-INF/views/error/error500.jsp</location>
+    </error-page>
 
     <error-page>
-        <error-code>500</error-code>
-<!--        <location>/WEB-INF/views/error500.jsp</location>-->
-        <location>/WEB-INF/views/error500.html</location>
+        <error-code>404</error-code>
+        <location>/WEB-INF/views/error/error404.jsp</location>
     </error-page>
 
 </web-app>

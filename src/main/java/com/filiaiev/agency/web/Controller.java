@@ -1,6 +1,7 @@
 package com.filiaiev.agency.web;
 
 import com.filiaiev.agency.web.command.CommandContainer;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -9,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class Controller extends HttpServlet {
+
+    private static Logger logger = Logger.getLogger(Controller.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -21,22 +24,19 @@ public class Controller extends HttpServlet {
     }
 
     private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        System.out.println("Controller started it`s work");
         String cmd = req.getParameter("command");
         String forward = CommandContainer.getCommand(cmd).execute(req, resp);
-        System.out.println(cmd + " processed!");
         String method = req.getMethod();
-        System.out.println("Method = " + method + "\t" + "forward = " + forward);
 
         if(forward != null && !forward.isEmpty()){
             if(method.equals("GET") || req.getAttribute("errorMessage") != null){
-                System.out.println("Req forward");
+                logger.trace("Command '" + cmd + "', forwarding to --> " + forward);
                 req.getRequestDispatcher(forward).forward(req, resp);
             }else{
-                System.out.println("Req redirect");
-                resp.sendRedirect(req.getServletContext().getContextPath() + forward);
+                String fullRedirectPath = req.getServletContext().getContextPath() + forward;
+                logger.trace("Command '" + cmd + "', redirecting to --> " + fullRedirectPath);
+                resp.sendRedirect(fullRedirectPath);
             }
-//            req.getRequestDispatcher(forward).forward(req, resp);
         }
     }
 }

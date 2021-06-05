@@ -1,80 +1,26 @@
-function setStatusColor(id, status_id){
-    /*
-         0 - created, 1 - waiting for payment, 2 - paid
-         3 - canceled, 4 - in work, 5 - completed
-    */
-    status_id = parseInt(status_id);
-    var style_holder = document.getElementById(id);
-    switch (status_id){
-        case 1:
-            style_holder.style.backgroundColor = "orange";
-            break;
-        case 2:
-            style_holder.style.backgroundColor = "khaki";
-            break;
-        case 3:
-            style_holder.style.backgroundColor = "lightcoral";
-            style_holder.style.color = "white";
-            break;
-        case 4:
-            style_holder.style.backgroundColor = "yellow";
-            break;
-        case 5:
-            style_holder.style.backgroundColor = "green";
-            style_holder.style.color = "white";
-            break;
-    }
-}
-
-function managerGetOrders(){
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("post", "controller?command=receive_orders");
-    xhttp.send()
-
-    xhttp.onload = function (){
-        var filterDiv = document.getElementById("com.filiaiev.agency.filter");
-        filterDiv.style.display = "block";
-    }
-}
-
-function showAll(){
-    var elements = document.getElementsByClassName("show-element");
-    var disp;
-    for (let i = 0; i < elements.length; i++) {
-        disp = elements[i].id == "orders-table" ? "block" : "inline-block";
-
-        if(elements[i].style.display == "none"){
-            elements[i].style.display = disp;
-        }else{
-            elements[i].style.display = "none";
-
-        }
-    }
-}
-
 const orderPattern = "^[A-zÀ-ÿ³¿º¸²¯ª¨,.!?:'\";/@#¹$%^&*()-_=\\d\\s]{10,200}$";
-const orderRe = new RegExp(orderPattern, "mg");
-const newLineRe = new RegExp("\r\n|\n|\r", "g");
 
 function createOrder(areaId, localizedName, errorMessage, successMessage, allowedMessage){
+    const orderRe = new RegExp(orderPattern);
     var textArea = document.getElementById(areaId);
-    var text = textArea.value.replaceAll(newLineRe, " ");
+    var text = textArea.value.replace(/\r\n|\n|\r/, " ");
     var p = document.getElementById("message-holder");
     if(!orderRe.test(text)){
         setErrorBorder(textArea);
         p.innerHTML = localizedName + " " + errorMessage + "<br/>" + allowedMessage +
             ": " + orderPattern;
         p.className = "text-danger text-center w-25";
-        // console.log(text);
     }else{
         setSuccessBorder(textArea);
         var xhttp = new XMLHttpRequest();
-       /* Replacing line separator to heximal code of it
-          So the it`s parsed correctly and setted to URL
+       /*
+        *  Replacing line separator to heximal code of it
+        *  So the it`s parsed correctly and setted to URL
        */
-        var url = "controller?command=createOrder" + "&" + "orderText=" +
-            textArea.value.replaceAll(newLineRe, "%0A");
-        xhttp.open("post", url);
+        let url = "controller?command=createOrder" + "&" + "orderText=" +
+        textArea.value;
+            // .replace(/\r\n|\n|\r/, "%0A");
+        xhttp.open("post", encodeURI(url));
         xhttp.send();
         xhttp.onload = function (){
             p.innerHTML = localizedName + " " + successMessage;
@@ -84,11 +30,11 @@ function createOrder(areaId, localizedName, errorMessage, successMessage, allowe
 }
 
 const commentPattern = "^[A-zÀ-ÿ³¿º¸²¯ª¨,.!?:'\";/@#¹$%^&*()-_=\\d\\s]{10,50}$";
-const commentRe = new RegExp(commentPattern, "mg");
 
 function validateCommentCreation(areaId, localizedName, errorMessage, allowedMessage){
+    const commentRe = new RegExp(commentPattern);
     var textArea = document.getElementById(areaId);
-    var text = textArea.value.replaceAll(newLineRe, " ");
+    var text = textArea.value.replace(/\r\n|\n|\r/, " ");
     var p = document.getElementById("message-holder");
     console.log(textArea.value);
     if(!commentRe.test(text)) {
@@ -107,26 +53,6 @@ function setMaxDate(){
         .toISOString().slice(0, 10);
     let dateInput = document.querySelector("input[type='date']");
     dateInput.setAttribute("max", minDate);
-}
-
-function showHideCreationForm(){
-    var location = document.URL;
-    var pos = location.indexOf("agency/", 0);
-    if(location.slice(pos+"agency".length, location.length) !== "/home"){
-        window.location.href = location.slice(0, pos+"agency".length) + "/home";
-        var f = document.getElementById("creation-form");
-        f.className = "d-flex";
-        f.style.display = null;
-    }else{
-        var form = document.getElementById("creation-form");
-        if(form.className === "d-flex"){
-            form.className = null;
-            form.style.display = "none";
-        }else{
-            form.className = "d-flex";
-            form.style.display = null;
-        }
-    }
 }
 
 const loginPattern = /[a-z][a-z0-9]{5,15}/;
