@@ -6,6 +6,7 @@ import com.filiaiev.agency.entity.OrderStatus;
 import com.filiaiev.agency.entity.Role;
 import com.filiaiev.agency.entity.User;
 import com.filiaiev.agency.web.command.Command;
+import com.filiaiev.agency.web.util.Paths;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,20 +18,20 @@ public class ToHomePageCommand implements Command {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User user = (User)req.getSession().getAttribute("user");
+        Role role = (Role)req.getSession().getAttribute("role");
         OrderDAO orderDAO = new OrderDAO();
         int todaysOrders = 0;
         long toWorkCount = 0;
-        if(user.getRoleId() == Role.MANAGER.ordinal()){
+        if(role == Role.MANAGER){
             toWorkCount = orderDAO.getOrdersByStatus(OrderStatus.CREATED).size()
                         + orderDAO.getOrdersByStatus(OrderStatus.PAID)
                             .stream()
-                            .filter(v -> v.getWorkerId() == null)
+                            .filter(v -> v.getWorkerId() == 0)
                             .count();
             todaysOrders = orderDAO.getOrdersCountByField(
                     "date(" + Field.ORDERS__ORDER_DATE + ")", new Date(System.currentTimeMillis()).toString());
             req.setAttribute("todaysOrders", todaysOrders);
-        }else if(user.getRoleId() == Role.REPAIRER.ordinal()){
+        }else if(role == Role.REPAIRER){
             toWorkCount = orderDAO.getOrdersByRepairerId(
                     (Integer)req.getSession().getAttribute("employeeId"),
                     0, 0)
@@ -41,6 +42,7 @@ public class ToHomePageCommand implements Command {
                     .count();
         }
         req.setAttribute("toWorkCount", toWorkCount);
-        return "/controller?command=homePage";
+        req.getRequestDispatcher(Paths.JSP__HOME).forward(req, resp);
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package com.filiaiev.agency.database.dao;
 
 import com.filiaiev.agency.database.DBManager;
+import com.filiaiev.agency.database.exception.InsertingDuplicateException;
 import com.filiaiev.agency.database.util.Field;
 import com.filiaiev.agency.entity.Person;
 import org.apache.log4j.Logger;
@@ -30,7 +31,7 @@ public class PersonDAO {
             " VALUES(?, ?, ?, ?, ?);";
 
     public Integer insertPerson(String firstName, String middleName, String lastName,
-                                Date birthDate, int userId){
+                                Date birthDate, int userId) throws InsertingDuplicateException {
         PreparedStatement ps = null;
         Connection con = null;
         ResultSet rs = null;
@@ -52,9 +53,12 @@ public class PersonDAO {
                 personId = rs.getInt(1);
             }
             ps.close();
-        }catch (SQLException e){
+        }catch (SQLIntegrityConstraintViolationException e){
+            throw new InsertingDuplicateException("Person already exists or FK fails", e);
+        }
+        catch (SQLException e){
+            logger.error("Cannot insert new person with user_id = " + userId, e);
             DBManager.getInstance().rollbackAndClose(con);
-            logger.error("Cannot insert person with user id = " + userId, e);
             return null;
         }
         DBManager.getInstance().commitAndClose(con);

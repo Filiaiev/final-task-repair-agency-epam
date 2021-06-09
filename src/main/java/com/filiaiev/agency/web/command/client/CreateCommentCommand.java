@@ -21,6 +21,11 @@ public class CreateCommentCommand implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String comment = req.getParameter("commentText");
+        if(comment == null || comment.isEmpty()){
+            req.setAttribute("errorKey", "comment_cannot_be_empty");
+            return Paths.JSP__ERROR;
+        }
+
         int orderId = Integer.parseInt(req.getParameter("orderId"));
 
         OrderDAO orderDAO = new OrderDAO();
@@ -41,7 +46,7 @@ public class CreateCommentCommand implements Command {
         orderDAO.updateOrderCommentById(orderId, comment);
 
         logger.info("User " + user.getLogin() + " created comment for Order #" + orderId);
-        return "/controller?command=" + CommandContainer.getOrderInfoCmd +
+        return "/controller?command=" + CommandContainer.GET_ORDER_INFO +
                 "&orderId=" + orderId;
     }
 }

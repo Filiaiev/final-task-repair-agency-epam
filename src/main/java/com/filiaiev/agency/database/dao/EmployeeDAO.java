@@ -4,14 +4,13 @@ import com.filiaiev.agency.database.DBManager;
 import com.filiaiev.agency.entity.Employee;
 import com.filiaiev.agency.entity.Person;
 import org.apache.log4j.Logger;
+import static com.filiaiev.agency.database.dao.PersonDAO.PersonMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class EmployeeDAO {
@@ -35,17 +34,17 @@ public class EmployeeDAO {
     private static final String SQL__GET_EMPLOYEE_BY_PERSON_ID =
             "SELECT * FROM employees WHERE person_id = ?;";
 
-    public Map<String, Person> getAllRepairersInfo(){
-        Map<String, Person> repairers = new HashMap<>();
+    public Map<Integer, Person> getAllRepairersInfo(){
+        Map<Integer, Person> repairers = new HashMap<>();
         Connection con = null;
         ResultSet rs = null;
 
         try{
             con = DBManager.getInstance().getConnection();
             rs = con.createStatement().executeQuery(SQL__GET_ALL_REPAIRERS);
-            EmployeePersonMapper personMapper = new EmployeePersonMapper();
+            PersonMapper personMapper = new PersonMapper();
             while(rs.next()){
-                repairers.put(rs.getString("employee_id"), personMapper.mapRow(rs));
+                repairers.put(rs.getInt("employee_id"), personMapper.mapRow(rs));
             }
             logger.trace("Got all repairers --> " + repairers.size() + " persons");
             rs.close();
@@ -84,8 +83,6 @@ public class EmployeeDAO {
         return employee;
     }
 
-    private static class EmployeePersonMapper extends PersonDAO.PersonMapper{}
-
     private static class EmployeeMapper implements EntityMapper<Employee>{
         @Override
         public Employee mapRow(ResultSet rs) {
@@ -100,6 +97,4 @@ public class EmployeeDAO {
             return employee;
         }
     }
-
-
 }

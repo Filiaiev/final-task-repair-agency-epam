@@ -42,7 +42,7 @@
         
         <init-param>
             <param-name>manager</param-name>
-            <param-value>setPayment setRepairer setClientCash setOrderStatus filterBy sortOrders goToClientInfo</param-value>
+            <param-value>generateReport setPayment setRepairer setClientCash setOrderStatus toClientInfo</param-value>
         </init-param>
 
         <init-param>
@@ -57,7 +57,7 @@
 
         <init-param>
             <param-name>joint</param-name>
-            <param-value>getOrders getOrderInfo logout toHome</param-value>
+            <param-value>getOrders getOrderInfo logOut toHome</param-value>
         </init-param>
 
         <init-param>
@@ -67,7 +67,7 @@
 
         <init-param>
             <param-name>get-method-disallowed</param-name>
-            <param-value>login register setOrderStatus homePage clientPay setPayment setRepairer setClientCash</param-value>
+            <param-value>login register setOrderStatus clientPay setPayment setRepairer setClientCash</param-value>
         </init-param>
 
     </filter>
@@ -92,6 +92,38 @@
         <servlet-name>Controller</servlet-name>
         <servlet-class>com.filiaiev.agency.web.Controller</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>Home</servlet-name>
+        <jsp-file>/WEB-INF/views/home/home.jsp</jsp-file>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>Register</servlet-name>
+        <jsp-file>/WEB-INF/views/auth/register.jsp</jsp-file>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Home</servlet-name>
+        <url-pattern>/home</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>Register</servlet-name>
+        <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Home RName</web-resource-name>
+            <url-pattern>/home</url-pattern>
+
+            <http-method>GET</http-method>
+        </web-resource-collection>
+
+        <auth-constraint>
+        </auth-constraint>
+    </security-constraint>
     
     <servlet-mapping>
         <servlet-name>Controller</servlet-name>
@@ -108,8 +140,7 @@
     </error-page>
 
     <error-page>
-        <error-code>404</error-code>
-        <location>/WEB-INF/views/error/error404.jsp</location>
+        <location>/WEB-INF/views/error/error.jsp</location>
     </error-page>
 
 </web-app>

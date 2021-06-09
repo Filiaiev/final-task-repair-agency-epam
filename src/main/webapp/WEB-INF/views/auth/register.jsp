@@ -10,18 +10,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <link rel="stylesheet" href="style/core.css"/>
     <script src="script/script.js"></script>
-    <fmt:message key="login_pattern" var="login_pattern"/>
-    <fmt:message key="password_pattern" var="password_pattern"/>
-    <fmt:message key="name_pattern" var="name_pattern"/>
+    <fmt:message key="login_pattern" var="loginPattern"/>
+    <fmt:message key="password_pattern" var="passwordPattern"/>
+    <fmt:message key="name_pattern" var="namePattern"/>
 
     <fmt:message key="register" var="register"/>
     <fmt:message key="login" var="login"/>
     <fmt:message key="password" var="password"/>
-    <fmt:message key="person.first_name" var="first_name"/>
-    <fmt:message key="person.middle_name" var="middle_name"/>
-    <fmt:message key="person.last_name" var="last_name"/>
-    <fmt:message key="person.birth_date" var="birth_date"/>
-    <fmt:message key="login.form.log_in" var="log_in"/>
+    <fmt:message key="person.first_name" var="firstName"/>
+    <fmt:message key="person.middle_name" var="middle“ame"/>
+    <fmt:message key="person.last_name" var="lastName"/>
+    <fmt:message key="person.birth_date" var="birthDate"/>
+    <fmt:message key="login.form.log_in" var="logIn"/>
     <fmt:message key="register.registration" var="registration"/>
     <fmt:message key="email" var="email"/>
 
@@ -32,7 +32,7 @@
     <div class="container-fluid" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="${pageContext.request.contextPath}/">${log_in}<span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="${pageContext.request.contextPath}/">${logIn}<span class="sr-only">(current)</span></a>
             </li>
 
         </ul>
@@ -55,7 +55,7 @@
                                             id="login"
                                             class="form-control"
                                             name="userLogin"
-                                            title="${login_pattern}"  autofocus autocomplete="off">
+                                            title="${loginPattern}" autofocus autocomplete="off">
                                 </div>
                             </div>
 
@@ -67,7 +67,7 @@
                                             id="password"
                                             class="form-control"
                                             name="userPass"
-                                            title="${password_pattern}" autocomplete="off">
+                                            title="${passwordPattern}" autocomplete="off">
                                 </div>
                             </div>
 
@@ -84,49 +84,49 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="last-name" class="col-md-4 col-form-label text-md-right">${last_name}</label>
+                                <label for="last-name" class="col-md-4 col-form-label text-md-right">${lastName}</label>
                                 <div class="col-md-6">
                                     <input type="text"
                                            id="last-name"
                                            class="form-control"
                                            name="lastName"
-                                           title="${name_pattern}" autocomplete="off">
+                                           title="${namePattern}" autocomplete="off">
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="first-name" class="col-md-4 col-form-label text-md-right">${first_name}</label>
+                                <label for="first-name" class="col-md-4 col-form-label text-md-right">${firstName}</label>
                                 <div class="col-md-6">
                                     <input
                                             type="text"
                                             id="first-name"
                                             class="form-control"
                                             name="firstName"
-                                            title="${name_pattern}" autocomplete="off">
+                                            title="${namePattern}" autocomplete="off">
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="middle-name" class="col-md-4 col-form-label text-md-right">${middle_name}</label>
+                                <label for="middle-name" class="col-md-4 col-form-label text-md-right">${middle“ame}</label>
                                 <div class="col-md-6">
                                     <input
                                             type="text"
                                             id="middle-name"
                                             class="form-control"
                                             name="middleName"
-                                            title="${name_pattern}" autocomplete="off">
+                                            title="${namePattern}" autocomplete="off">
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="birth-date" class="col-md-4 col-form-label text-md-right">${birth_date}</label>
+                                <label for="birth-date" class="col-md-4 col-form-label text-md-right">${birthDate}</label>
                                 <div class="col-md-6">
                                     <input
                                             type="date"
                                             id="birth-date"
                                             class="form-control"
                                             name="birthDate"
-                                            min="1930-01-01">
+                                            min="1930-01-01" required>
                                 </div>
                             </div>
 

@@ -28,4 +28,6 @@ public final class Field {
     public static final String ORDERS__DESCRIPTION = "description";
     public static final String ORDERS__STATUS_ID = "status_id";
 
+    public static final String ORDERS__STATUS_NAME = "status_name";
+
 }

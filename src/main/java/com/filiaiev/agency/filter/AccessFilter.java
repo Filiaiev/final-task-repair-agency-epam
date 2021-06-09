@@ -25,19 +25,14 @@ public class AccessFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.debug("Access filter init started");
-//        EncodingFilter.super.init(filterConfig);
-        ServletContext servletContext = filterConfig.getServletContext();
+
         accessMap.put(Role.MANAGER, asList(filterConfig.getInitParameter("manager")));
         accessMap.put(Role.CLIENT, asList(filterConfig.getInitParameter("client")));
         accessMap.put(Role.REPAIRER, asList(filterConfig.getInitParameter("repairer")));
 
-//        outOfControl = asList(filterConfig.getInitParameter("out-of-control"));
         joint = asList(filterConfig.getInitParameter("joint"));
         getMethodDisallowed = asList(filterConfig.getInitParameter("get-method-disallowed"));
         allowedAnywhere = asList(filterConfig.getInitParameter("allowed-anywhere"));
-
-//        logged = asList(filterConfig.getInitParameter("logged"));
-//        disallowed = asList(filterConfig.getInitParameter("disallowed"));
 
         logger.debug("Access filter init successfully ended");
     }
@@ -61,7 +56,6 @@ public class AccessFilter implements Filter {
     private boolean accessAllowed(ServletRequest req){
         HttpServletRequest httpRequest = (HttpServletRequest)req;
         String commandName = req.getParameter("command");
-        System.out.println(Collections.list(req.getParameterNames()));
 
         if(commandName == null || commandName.isEmpty() || CommandContainer.getCommand(commandName) == null){
             req.setAttribute("errorKey", "bad_request");
@@ -86,8 +80,8 @@ public class AccessFilter implements Filter {
             return false;
         }
 
-        Integer roleId = (Integer)session.getAttribute("roleId");
-        if(roleId == null){
+        Role role = (Role)session.getAttribute("role");
+        if(role == null){
             logger.trace("Unlogged user tried to access command '" + commandName + "'");
             req.setAttribute("errorKey", "user_not_logged");
             return false;
@@ -95,7 +89,7 @@ public class AccessFilter implements Filter {
             return true;
         }
 
-        if(accessMap.get(Role.values()[roleId]).contains(commandName)){
+        if(accessMap.get(role).contains(commandName)){
             return true;
         }else{
             req.setAttribute("errorKey", "no_permission_to_resource");

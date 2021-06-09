@@ -15,33 +15,61 @@ public class OrderDAO {
 
     private static Logger logger = Logger.getLogger(OrderDAO.class);
 
-    private static final String SQL__FIND_ORDERS_BY_CLIENT_ID =
-            "SELECT * FROM order_headers WHERE client_id = ?;";
+    private String locale;
+
+    public OrderDAO(){
+        locale = "uk";
+    }
+
+    public OrderDAO(String locale){
+        this.locale = locale;
+    }
 
     public static final String SQL__INSERT_ORDER = "INSERT INTO order_headers" +
             "(client_id, description) VALUES(?, ?)";
 
+    private static final String SQL__GET_ALL_ORDERS =
+            "SELECT oh.*, sl.status_name FROM order_headers as oh " +
+            "JOIN statuses_localized as sl " +
+            "ON sl.status_id = oh.status_id " +
+            "JOIN locales as l " +
+            "ON l.id = sl.locale_id " +
+            "WHERE l.locale = ?";
+
     private static final String SQL__GET_ORDERS_COUNT = "SELECT COUNT(*) FROM order_headers";
 
-    private static final String SQL__GET_ORDERS_DATE_BY_DATE = "SELECT COUNT(*) FROM order_headers" +
-            " WHERE date(order_date) = ?;";
-
     private static final String SQL__GET_ORDERS_BY_REPAIRER_ID =
-            "SELECT * FROM order_headers WHERE worker_id = ? ORDER BY order_date DESC";
+            "SELECT oh.*, sl.status_name FROM order_headers as oh " +
+            "JOIN statuses_localized as sl " +
+            "ON sl.status_id = oh.status_id " +
+            "JOIN locales as l " +
+            "ON l.id = sl.locale_id " +
+            "WHERE l.locale = ? AND oh.worker_id = ? ORDER BY oh.order_date DESC";
 
     private static final String SQL__GET_ORDERS_BY_STATUS =
-            "SELECT * FROM order_headers WHERE status_id = ?;";
-
-    private static final String SQL__GET_ALL_ORDERS = "SELECT * FROM order_headers;";
+            "SELECT oh.*, sl.status_name FROM order_headers as oh " +
+                    "JOIN statuses_localized as sl " +
+                    "ON sl.status_id = oh.status_id " +
+                    "JOIN locales as l " +
+                    "ON l.id = sl.locale_id " +
+                    "WHERE l.locale = ? AND oh.status_id = ? ORDER BY oh.order_date DESC;";
 
     private static final String SQL__GET_ORDER_BY_ORDER_ID =
-            "SELECT * FROM order_headers WHERE id = ?;";
+            "SELECT oh.*, sl.status_name FROM order_headers as oh " +
+                    "JOIN statuses_localized as sl " +
+                    "ON sl.status_id = oh.status_id " +
+                    "JOIN locales as l " +
+                    "ON l.id = sl.locale_id " +
+                    "WHERE l.locale = ? AND oh.id = ?;";
 
     private static final String SQL__GET_ORDERS_BY_PERSON_ID =
-            "SELECT * FROM order_headers" +
-            " JOIN clients ON clients.id = order_headers.client_id" +
-            " WHERE person_id = ?" +
-            " ORDER BY order_date DESC";
+            "SELECT oh.*, sl.status_name FROM order_headers as oh " +
+            "JOIN statuses_localized as sl " +
+            "ON sl.status_id = oh.status_id " +
+            "JOIN locales as l " +
+            "ON l.id = sl.locale_id " +
+            "JOIN clients ON clients.id = oh.client_id " +
+            "WHERE l.locale = ? AND person_id = ? ORDER BY oh.order_date DESC";
 
     private static final String SQL__UPDATE_COMMENT_BY_ORDER_ID =
             "UPDATE order_headers SET comment = ? WHERE id = ?;";
@@ -53,45 +81,28 @@ public class OrderDAO {
             "UPDATE order_headers SET worker_id = ? WHERE id = ?;";
 
     private static final String SQL__GET_ORDER_INFO_BY_ORDER_ID =
-            "WITH order_worker" +
-                    "(id, client_id, employee_id, order_date, complete_date, cost, comment, description," +
-                    " worker_last_name, worker_first_name, worker_middle_name, status)" +
-                    " as(" +
-                    "SELECT" +
-                    " oh.id, client_id, e.id, order_date, complete_date, cost, comment, description," +
-                    " last_name, first_name, middle_name," +
-                    " status_id" +
-                    " FROM order_headers as oh" +
-                    " LEFT JOIN employees as e" +
-                    " ON e.id = oh.worker_id" +
-                    " LEFT JOIN persons as p" +
-                    " ON p.id = e.person_id" +
-                    " WHERE oh.id = ?" +
-                    " UNION" +
-                    " SELECT" +
-                    " oh.id, client_id, e.id, order_date, complete_date, cost, comment, description," +
-                    " last_name, first_name, middle_name," +
-                    " status_id" +
-                    " FROM order_headers as oh" +
-                    " RIGHT JOIN employees as e" +
-                    " ON e.id = oh.worker_id" +
-                    " RIGHT JOIN persons as p" +
-                    " ON p.id = e.person_id" +
-                    " WHERE oh.id = ?) " +
-
-                    " SELECT" +
-                    " ow.id, client_id, employee_id as worker_id," +
-                    " p.last_name, p.first_name, p.middle_name," +
-                    " order_date, complete_date, cost, comment, description," +
-                    " worker_last_name, worker_first_name, worker_middle_name," +
-                    " ow.status as status_id" +
-                    " FROM order_worker as ow" +
-                    " JOIN statuses as s" +
-                    " ON s.id = ow.status " +
-                    " JOIN clients as c" +
-                    " ON c.id = client_id" +
-                    " JOIN persons as p" +
-                    " ON p.id = c.person_id;";
+            "SELECT oh.*, " +
+            "sl.status_name, " +
+            "pemp.last_name as worker_lname, " +
+            "pemp.first_name as worker_fname, " +
+            "pemp.middle_name as worker_mname, " +
+            "pcli.last_name as client_lname, " +
+            "pcli.first_name as client_fname, " +
+            "pcli.middle_name as client_mname " +
+            "FROM order_headers as oh " +
+            "INNER JOIN clients as c " +
+            "ON c.id = oh.client_id " +
+            "INNER JOIN persons as pcli " +
+            "ON pcli.id = c.person_id " +
+            "LEFT JOIN employees as e " +
+            "ON e.id = oh.worker_id " +
+            "LEFT JOIN persons as pemp " +
+            "ON e.person_id = pemp.id " +
+            "JOIN statuses_localized as sl " +
+            "ON sl.status_id = oh.status_id " +
+            "JOIN locales as l " +
+            "ON l.id = sl.locale_id " +
+            "WHERE oh.id = ? AND l.locale = ?;";
 
     public List<Order> getOrders(Map<String, String> filters, String sortField,
                                  String ordering, int start, int offset){
@@ -99,17 +110,23 @@ public class OrderDAO {
         Connection con = null;
         ResultSet rs = null;
         String query = null;
+        PreparedStatement ps = null;
+
         if(start == 0 && offset == 0){
-            query = "SELECT * FROM order_headers" + getFilteringPart(filters, sortField);
+            query = SQL__GET_ALL_ORDERS + getFilteringPart(filters, sortField)
+                    + getOrderingPart(sortField, ordering);
         }else{
-            query = "SELECT * FROM order_headers"
+            query = SQL__GET_ALL_ORDERS
                     + getFilteringPart(filters, sortField)
                     + getOrderingPart(sortField, ordering)
                     + " LIMIT " + start + ", " + offset;
         }
         try{
             con = DBManager.getInstance().getConnection();
-            rs = con.createStatement().executeQuery(query);
+            ps = con.prepareStatement(query);
+            ps.setString(1, locale);
+
+            rs = ps.executeQuery();
             OrderMapper orderMapper = new OrderMapper();
             while(rs.next()){
                 orders.add(orderMapper.mapRow(rs));
@@ -156,7 +173,8 @@ public class OrderDAO {
         try{
             con = DBManager.getInstance().getConnection();
             ps = con.prepareStatement(SQL__GET_ORDERS_BY_STATUS);
-            ps.setInt(1, status.ordinal());
+            ps.setString(1, locale);
+            ps.setInt(2, status.ordinal());
             rs = ps.executeQuery();
             OrderMapper orderMapper = new OrderMapper();
             while(rs.next()){
@@ -188,7 +206,8 @@ public class OrderDAO {
             }
             ps = con.prepareStatement(query);
             con = DBManager.getInstance().getConnection();
-            ps.setInt(1, repairerId);
+            ps.setString(1, locale);
+            ps.setInt(2, repairerId);
             rs = ps.executeQuery();
             OrderMapper orderMapper = new OrderMapper();
             while(rs.next()){
@@ -220,7 +239,8 @@ public class OrderDAO {
             }
             ps = con.prepareStatement(query);
             con = DBManager.getInstance().getConnection();
-            ps.setInt(1, personId);
+            ps.setString(1, locale);
+            ps.setInt(2, personId);
             rs = ps.executeQuery();
             OrderMapper orderMapper = new OrderMapper();
             while(rs.next()){
@@ -246,7 +266,8 @@ public class OrderDAO {
         try{
             con = DBManager.getInstance().getConnection();
             ps = con.prepareStatement(SQL__GET_ORDER_BY_ORDER_ID);
-            ps.setInt(1, orderId);
+            ps.setString(1, locale);
+            ps.setInt(2, orderId);
             rs = ps.executeQuery();
             OrderMapper orderMapper = new OrderMapper();
             if(rs.next()){
@@ -263,7 +284,7 @@ public class OrderDAO {
         return order;
     }
 
-    public Integer insertOrderByClientId(int clientId, String orderText){
+    public Integer insertOrderByClientId(int clientId, String orderText) {
         PreparedStatement ps = null;
         Connection con = null;
         Integer generatedId = null;
@@ -274,11 +295,11 @@ public class OrderDAO {
             ps.setInt(1, clientId);
             ps.setString(2, orderText);
 
+            ps.execute();
             ResultSet genKeys = ps.getGeneratedKeys();
             if(genKeys.next()){
                 generatedId = genKeys.getInt(1);
             }
-            ps.execute();
             ps.close();
         }catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
@@ -299,25 +320,26 @@ public class OrderDAO {
             con = DBManager.getInstance().getConnection();
             ps = con.prepareStatement(SQL__GET_ORDER_INFO_BY_ORDER_ID);
             ps.setInt(1, orderId);
-            ps.setInt(2, orderId);
+            ps.setString(2, locale);
             rs = ps.executeQuery();
             if(rs.next()){
                 orderInfo = new HashMap<>();
                 orderInfo.put("id", rs.getString("id"));
-                orderInfo.put("client_id", rs.getString("client_id"));
-                orderInfo.put("worker_id", rs.getString("worker_id"));
-                orderInfo.put("client_last_name", rs.getString("last_name"));
-                orderInfo.put("client_first_name", rs.getString("first_name"));
-                orderInfo.put("client_middle_name", rs.getString("middle_name"));
-                orderInfo.put("order_date", rs.getString("order_date"));
-                orderInfo.put("complete_date", rs.getString("complete_date"));
+                orderInfo.put("clientId", rs.getString("client_id"));
+                orderInfo.put("workerId", rs.getString("worker_id"));
+                orderInfo.put("clientFirstName", rs.getString("client_fname"));
+                orderInfo.put("clientLastName", rs.getString("client_lname"));
+                orderInfo.put("clientMiddleName", rs.getString("client_mname"));
+                orderInfo.put("orderDate", rs.getString("order_date"));
+                orderInfo.put("completeDate", rs.getString("complete_date"));
                 orderInfo.put("cost", rs.getString("cost"));
                 orderInfo.put("comment", rs.getString("comment"));
                 orderInfo.put("description", rs.getString("description"));
-                orderInfo.put("worker_last_name", rs.getString("worker_last_name"));
-                orderInfo.put("worker_first_name", rs.getString("worker_first_name"));
-                orderInfo.put("worker_middle_name", rs.getString("worker_middle_name"));
-                orderInfo.put("status_id", rs.getString("status_id"));
+                orderInfo.put("workerFirstName", rs.getString("worker_fname"));
+                orderInfo.put("workerLastName", rs.getString("worker_lname"));
+                orderInfo.put("workerMiddleName", rs.getString("worker_mname"));
+                orderInfo.put("statusId", rs.getString("status_id"));
+                orderInfo.put("statusName", rs.getString("status_name"));
                 System.out.println(orderInfo);
             }
             rs.close();
@@ -420,28 +442,25 @@ public class OrderDAO {
         if((filters == null || filters.size() == 0) && sortField == null){
             return "";
         }else if((filters == null || filters.size() == 0)){
-            return " WHERE " + sortField + " IS NOT NULL";
+            return " AND oh." + sortField + " IS NOT NULL";
         }
         StringBuilder sb = new StringBuilder();
         Iterator<Map.Entry<String, String>> it = filters.entrySet().iterator();
-        sb.append(" WHERE ");
 
         while(it.hasNext()){
             Map.Entry<String, String> e = it.next();
-            sb.append(e.getKey()).append("=").append(e.getValue());
-            if(it.hasNext()){
-                sb.append(" AND ");
-            }
+            sb.append(" AND ");
+            sb.append("oh.").append(e.getKey()).append("=").append(e.getValue());
         }
         return sb.toString();
     }
 
     private static String getOrderingPart(String sortField, String desc){
         if(sortField == null){
-            return " ORDER BY order_date DESC";
+            return " ORDER BY oh.order_date DESC";
         }
 
-        return " ORDER BY " + sortField + " " + Objects.toString(desc, "");
+        return " ORDER BY oh." + sortField + " " + Objects.toString(desc, "");
     }
 
     private static class OrderMapper implements EntityMapper<Order>{
@@ -458,6 +477,7 @@ public class OrderDAO {
                 order.setComment(rs.getString(Field.ORDERS__COMMENT));
                 order.setDescription(rs.getString(Field.ORDERS__DESCRIPTION));
                 order.setStatusId(rs.getInt(Field.ORDERS__STATUS_ID));
+                order.setStatusName(rs.getString(Field.ORDERS__STATUS_NAME));
                 return order;
             }catch (SQLException e){
                 logger.error("Cannot map order by given ResultSet", e);

@@ -2,48 +2,58 @@ package com.filiaiev.agency.entity;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class Order extends Entity implements Comparable<Order>{
 
-    private int client_id;
-    private Integer worker_id;
-    private Timestamp order_date;
-    private Timestamp complete_date;
+    private int clientId;
+    private Integer workerId;
+    private Timestamp orderDate;
+    private Timestamp completeDate;
     private BigDecimal cost;
     private String comment;
     private String description;
-    private int status_id;
+    private int statusId;
+    private String statusName;
 
-    public int getClientId() {
-        return client_id;
+    public String getStatusName() {
+        return statusName;
     }
 
-    public void setClientId(int client_id) {
-        this.client_id = client_id;
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
+    public int getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(int clientId) {
+        this.clientId = clientId;
     }
 
     public Integer getWorkerId() {
-        return worker_id;
+        return workerId;
     }
 
-    public void setWorkerId(Integer worker_id) {
-        this.worker_id = worker_id;
+    public void setWorkerId(Integer workerId) {
+        this.workerId = workerId;
     }
 
     public Timestamp getOrderDate() {
-        return order_date;
+        return orderDate;
     }
 
-    public void setOrderDate(Timestamp order_date) {
-        this.order_date = order_date;
+    public void setOrderDate(Timestamp orderDate) {
+        this.orderDate = orderDate;
     }
 
     public Timestamp getCompleteDate() {
-        return complete_date;
+        return completeDate;
     }
 
-    public void setCompleteDate(Timestamp complete_date) {
-        this.complete_date = complete_date;
+    public void setCompleteDate(Timestamp completeDate) {
+        this.completeDate = completeDate;
     }
 
     public BigDecimal getCost() {
@@ -71,23 +81,31 @@ public class Order extends Entity implements Comparable<Order>{
     }
 
     public int getStatusId() {
-        return status_id;
+        return statusId;
     }
 
-    public void setStatusId(int status_id) {
-        this.status_id = status_id;
+    public void setStatusId(int statusId) {
+        this.statusId = statusId;
     }
 
     @Override
     public String toString() {
-        return "Order #" + id + "\nclient #: " + client_id + "\nworker #: " + worker_id
-                + "\norder date: " + order_date + "\ncomplete date: " + complete_date
+        return "Order #" + id + "\nclient #: " + clientId + "\nworker #: " + workerId
+                + "\norder date: " + orderDate + "\ncomplete date: " + completeDate
                 + "\ncost: " + cost + "\ncomment: " + comment +
-                "\ndescription: " + description + "\nstatus #" + status_id;
+                "\ndescription: " + description + "\nstatus #" + statusId;
     }
 
     @Override
     public int compareTo(Order o) {
-        return status_id-o.status_id;
+        return statusId-o.statusId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Order order = (Order) o;
+        return clientId == order.clientId && statusId == order.statusId && Objects.equals(workerId, order.workerId) && Objects.equals(orderDate, order.orderDate) && Objects.equals(completeDate, order.completeDate) && Objects.equals(cost, order.cost) && Objects.equals(comment, order.comment) && Objects.equals(description, order.description);
     }
 }

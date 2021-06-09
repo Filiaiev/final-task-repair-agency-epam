@@ -5,7 +5,6 @@ import com.filiaiev.agency.entity.Client;
 import com.filiaiev.agency.entity.User;
 import com.filiaiev.agency.web.command.Command;
 import com.filiaiev.agency.web.command.CommandContainer;
-import com.filiaiev.agency.web.util.Paths;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -37,7 +36,7 @@ public class SetClientCashCommand implements Command {
         logger.info("Client`s #" + client.getId() + " cash has been changed by "
                 + amountToAdd + " by manager (" + ((User)req.getSession().getAttribute("user")).getLogin() + ")");
 
-        return "/controller?command=" + CommandContainer.goToClientInfoCmd +
+        return "/controller?command=" + CommandContainer.TO_CLIENT_INFO +
                 "&clientId=" + clientId;
     }
 }

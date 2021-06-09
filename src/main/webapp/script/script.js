@@ -29,7 +29,7 @@ function createOrder(areaId, localizedName, errorMessage, successMessage, allowe
     }
 }
 
-const commentPattern = "^[A-zÀ-ÿ³¿º¸²¯ª¨,.!?:'\";/@#¹$%^&*()-_=\\d\\s]{10,50}$";
+const commentPattern = "^[A-zÀ-ÿ³¿º¸²¯ª¨,.!?:'\";/@#¹$%^&*()-_=\\d\\s]{10,100}$";
 
 function validateCommentCreation(areaId, localizedName, errorMessage, allowedMessage){
     const commentRe = new RegExp(commentPattern);
@@ -55,10 +55,10 @@ function setMaxDate(){
     dateInput.setAttribute("max", minDate);
 }
 
-const loginPattern = /[a-z][a-z0-9]{5,15}/;
-const passPattern = /[A-z0-9]{4,20}/;
-const namePattern = /[A-ZÀ-ß²¯ª][a-zà-ÿ³¿º]{2,13}/;
-const patterns = [loginPattern, passPattern, namePattern];
+const loginPattern = /^[a-z][a-z0-9]{5,15}$/;
+const passPattern = /^[A-z0-9]{8,20}$/;
+const namePattern = /^[A-ZÀ-ß²¯ª¨][a-zà-ÿ³¿º¸]{2,13}$/;
+const patterns = [loginPattern, passPattern, namePattern, namePattern, namePattern];
 
 function validateRegisterForm(){
     var login = document.getElementById("login");
@@ -69,7 +69,7 @@ function validateRegisterForm(){
     const inputs = [login, pass, lname, mname, fname];
     var successCounter = 0;
 
-    for (let i = 0; i < patterns.length-1; i++) {
+    for (let i = 0; i < patterns.length; i++) {
         if(patterns[i].test(inputs[i].value)){
             setSuccessBorder(inputs[i]);
             successCounter++;
@@ -78,23 +78,7 @@ function validateRegisterForm(){
         }
     }
 
-    for (let i = patterns.length-1; i < inputs.length; i++) {
-        if(patterns[patterns.length-1].test(inputs[i].value)){
-            setSuccessBorder(inputs[i]);
-            successCounter++;
-        }else{
-            setErrorBorder(inputs[i]);
-        }
-    }
-
-    var dateInput = document.getElementById("birth-date");
-    if(dateInput.value !== ""){
-        setSuccessBorder(dateInput);
-        successCounter++;
-    }else{
-        setErrorBorder(dateInput);
-    }
-    return successCounter == inputs.length+1;
+    return successCounter == inputs.length;
 }
 
 function validateLoginForm(){

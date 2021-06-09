@@ -7,9 +7,9 @@
 <head>
     <title>Login</title>
     <script src="script/script.js"></script>
-    <fmt:message key="login_pattern" var="login_pattern"/>
-    <fmt:message key="password_pattern" var="password_pattern"/>
-    <fmt:message key="login.form.log_in" var="log_in"/>
+    <fmt:message key="login_pattern" var="loginPattern"/>
+    <fmt:message key="password_pattern" var="passwordPattern"/>
+    <fmt:message key="login.form.log_in" var="logIn"/>
     <fmt:message key="register" var="register"/>
     <fmt:message key="login" var="login"/>
     <fmt:message key="password" var="password"/>
@@ -36,7 +36,7 @@
                                             class="form-control"
                                             autocomplete="off"
                                             name="userLogin"
-                                            title="${login_pattern}"
+                                            title="${loginPattern}"
                                             required autofocus>
                                 </div>
                             </div>
@@ -49,14 +49,14 @@
                                             id="password"
                                             class="form-control"
                                             name="userPass"
-                                            title="${password_pattern}" required>
+                                            title="${passwordPattern}" required>
                                 </div>
                             </div>
 
                             <div class="col-md-6 offset-md-4">
                                 <input type="hidden" name="command" value="login">
-                                <input type="submit" class="btn btn-dark" value="${log_in}">
-                                <a href="${pageContext.request.contextPath}/controller?command=toRegistration" class="btn btn-dark ml-4">${register}</a>
+                                <input type="submit" class="btn btn-dark" value="${logIn}">
+                                <a href="${pageContext.request.contextPath}/register" class="btn btn-dark ml-4">${register}</a>
                             </div>
                         </form>
                     </div>
@@ -72,5 +72,6 @@
         <p class="text-danger text-center w-25">${loginMsg}</p>
     </div>
 </c:if>
+
 </body>
 </html>

@@ -1,18 +1,28 @@
 package com.filiaiev.agency.entity;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class Client extends Entity{
 
-    private int person_id;
+    private int personId;
     private BigDecimal cash;
+    private String preferredLocale;
+
+    public String getPreferredLocale() {
+        return preferredLocale;
+    }
+
+    public void setPreferredLocale(String preferredLocale) {
+        this.preferredLocale = preferredLocale;
+    }
 
     public int getPersonId() {
-        return person_id;
+        return personId;
     }
 
     public void setPersonId(int person_id) {
-        this.person_id = person_id;
+        this.personId = person_id;
     }
 
     public BigDecimal getCash() {
@@ -25,6 +35,15 @@ public class Client extends Entity{
 
     @Override
     public String toString() {
-        return "Client #" + id + "\nperson #" + person_id + "\ncash: " + cash;
+        return "Client #" + id + "\nperson #" + personId + "\ncash: " + cash +
+                "\npreffered locale: " + preferredLocale;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return personId == client.personId && Objects.equals(cash, client.cash) && Objects.equals(preferredLocale, client.preferredLocale);
     }
 }

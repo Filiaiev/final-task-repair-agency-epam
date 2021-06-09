@@ -25,7 +25,7 @@ public class PayCommand implements Command {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession(false);
+        HttpSession session = req.getSession();
         int orderId = Integer.parseInt(req.getParameter("orderId"));
 
         OrderDAO orderDAO = new OrderDAO();
@@ -39,10 +39,9 @@ public class PayCommand implements Command {
 
         String paymentStatus = null;
         if(clientCash.compareTo(order.getCost()) < 0){
-            paymentStatus = "not_enough_money";
+            paymentStatus = "payment_not_enough_money";
             logger.trace("Client #" + client.getId() + "(" + user.getLogin() + ") " +
                     "hasn`t got enough cash to pay for Order #" + order.getId());
-            session.setAttribute("paymentStatus", paymentStatus);
         }else{
             BigDecimal newCash = clientCash.subtract(order.getCost());
             clientDAO.setClientCashById(newCash, client.getId());
@@ -52,19 +51,19 @@ public class PayCommand implements Command {
             client.setCash(newCash);
             order.setStatusId(OrderStatus.PAID.ordinal());
             // TODO: changed session to req
-            Map<String, String> order_info = (Map<String, String>)session.getAttribute("order_info");
-            order_info.put("status_id", String.valueOf(order.getStatusId()));
+            Map<String, String> orderInfo = (Map<String, String>)session.getAttribute("orderInfo");
+            orderInfo.put("statusId", String.valueOf(order.getStatusId()));
 
             session.setAttribute("order", order);
             session.setAttribute("client", client);
-            session.setAttribute("order_info", order_info);
+            session.setAttribute("order_info", orderInfo);
+            paymentStatus = "success";
 
             logger.info("Client #" + client.getId() + "(" + user.getLogin() + ") " +
                     "paid for Order #" + orderId);
         }
 
-        System.out.println(paymentStatus);
-        return "/controller?command=" + CommandContainer.getOrderInfoCmd +
-                "&orderId=" + orderId;
+        return "/controller?command=" + CommandContainer.GET_ORDER_INFO +
+                "&orderId=" + orderId + "&paymentStatus=" + paymentStatus;
     }
 }

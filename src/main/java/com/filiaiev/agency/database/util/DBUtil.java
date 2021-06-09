@@ -23,6 +23,6 @@ public class DBUtil {
         for(byte b : hash){
             output.append(Integer.toHexString((b >> 4)&0xF)).append(Integer.toHexString(b&0xF));
         }
-        return output.toString().toUpperCase();
+        return output.toString();
     }
 }

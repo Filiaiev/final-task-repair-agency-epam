@@ -1,5 +1,7 @@
 package com.filiaiev.agency.entity;
 
+import java.util.Objects;
+
 public class User extends Entity{
 
     private String email;
@@ -44,4 +46,13 @@ public class User extends Entity{
         return "User #" + id + "\nemail: " + email + "\nlogin: " + login + "\npass: " +
                 pass + "\nrole_id: " + roleId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return roleId == user.roleId && Objects.equals(email, user.email) && Objects.equals(login, user.login) && Objects.equals(pass, user.pass);
+    }
+
 }

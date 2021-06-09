@@ -28,14 +28,15 @@ public class ShowClientInfoCommand implements Command {
             String errorKey = "no_client_found";
             req.setAttribute("errorKey", errorKey);
             logger.trace("Client #" + clientId + "has been requested by " +
-                    Role.values()[(int)req.getSession().getAttribute("roleId")].name()
+                    ((Role)req.getSession().getAttribute("role")).name()
                     + " (" + ((User)req.getSession().getAttribute("user")).getLogin() + ")" +
                     " but no client was found for this role");
             return Paths.JSP__ERROR;
         }
 
         Person person = new PersonDAO().getPersonById(client.getPersonId());
-        String userEmail = new UserDAO().getUserById(person.getUserId()).getEmail();
+        User user = new UserDAO().getUserById(person.getUserId());
+        String userEmail = user.getEmail();
 
         HttpSession session = req.getSession();
         session.setAttribute("clientInfo", client);

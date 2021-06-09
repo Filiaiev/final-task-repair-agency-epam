@@ -12,9 +12,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class CreateOrderCommand implements Command {
 
@@ -23,6 +20,10 @@ public class CreateOrderCommand implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String orderText = req.getParameter("orderText");
+        if(orderText == null || orderText.isEmpty()){
+            req.setAttribute("errorKey", "order_description_cannot_be_empty");
+            return Paths.JSP__ERROR;
+        }
 
         User user = (User)req.getSession().getAttribute("user");
         Client client = (Client)req.getSession().getAttribute("client");

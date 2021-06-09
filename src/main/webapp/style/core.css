@@ -2,9 +2,17 @@
     color: red;
 }
 
-.page-button{
+.link-button{
     border: none;
     background-color: inherit;
+}
+
+.link-button:hover{
+    text-decoration: underline;
+}
+
+.pages-count-div{
+    margin-bottom: 60px;
 }
 
 .filter-div{

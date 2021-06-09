@@ -1,16 +1,14 @@
 package com.filiaiev.agency.database.dao;
 
 import com.filiaiev.agency.database.DBManager;
+import com.filiaiev.agency.database.exception.InsertingDuplicateException;
 import com.filiaiev.agency.entity.Client;
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
-public class ClientDAO {
+public class ClientDAO{
 
     private static Logger logger = Logger.getLogger(ClientDAO.class);
 
@@ -28,25 +26,39 @@ public class ClientDAO {
     public static final String SQL__INSERT_CLIENT = "INSERT INTO clients(person_id)" +
             " VALUES(?);";
 
-    public boolean insertClient(int personId){
+    private static final String SQL__UPDATE_PREFERRED_LOCALE_BY_ID =
+            "UPDATE clients SET preferred_locale = ? WHERE id = ?;";
+
+    public Integer insertClient(int personId) throws InsertingDuplicateException{
         PreparedStatement ps = null;
         Connection con = null;
+        Integer clientId = null;
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__INSERT_CLIENT);
-
+            ps = con.prepareStatement(SQL__INSERT_CLIENT, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, personId);
 
             ps.execute();
+            try(ResultSet rs = ps.getGeneratedKeys()){
+                if(rs.next()){
+                    clientId = rs.getInt(1);
+                }
+            }
             ps.close();
-        }catch (SQLException e){
+        }catch (SQLIntegrityConstraintViolationException e){
+            DBManager.getInstance().rollbackAndClose(con);
+            throw new InsertingDuplicateException("Client with person_id #" + personId
+                    + " already exists", e);
+
+        }
+        catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
             logger.error("Cannot insert client", e);
-            return false;
+            return null;
         }
         DBManager.getInstance().commitAndClose(con);
-        return true;
+        return clientId;
     }
 
     public Client getClientByPersonId(int personId){
@@ -147,6 +159,26 @@ public class ClientDAO {
         DBManager.getInstance().commitAndClose(con);
     }
 
+    public void updatePreferredLocaleById(int clientId, String locale){
+        PreparedStatement ps = null;
+        Connection con = null;
+
+        try{
+            con = DBManager.getInstance().getConnection();
+            ps = con.prepareStatement(SQL__UPDATE_PREFERRED_LOCALE_BY_ID);
+            ps.setString(1, locale);
+            ps.setInt(2, clientId);
+            ps.execute();
+
+            ps.close();
+        }catch (SQLException e){
+            DBManager.getInstance().rollbackAndClose(con);
+            logger.error("Cannot update to locale --> " + locale, e);
+            return;
+        }
+        DBManager.getInstance().commitAndClose(con);
+    }
+
     private static class ClientMapper implements EntityMapper<Client> {
         @Override
         public Client mapRow(ResultSet rs) {
@@ -155,6 +187,7 @@ public class ClientDAO {
                 client.setId(rs.getInt("id"));
                 client.setCash(rs.getBigDecimal("cash"));
                 client.setPersonId(rs.getInt("person_id"));
+                client.setPreferredLocale(rs.getString("preferred_locale"));
                 return client;
             }catch (SQLException e){
                 logger.error("Cannot map client with given ResultSet", e);

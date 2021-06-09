@@ -7,35 +7,34 @@
     <script src="${pageContext.request.contextPath}/script/script.js" type="text/javascript"></script>
     <title>Order</title>
 
-    <fmt:message key="order.order_number" var="order_no"/>
-    <fmt:message key="order.order_date" var="order_date"/>
-    <fmt:message key="order.complete_date" var="complete_date"/>
-    <fmt:message key="order.order_cost" var="order_cost"/>
-    <fmt:message key="order.order_comment" var="order_comment"/>
-    <fmt:message key="order.order_description" var="order_description"/>
-    <fmt:message key="workers_full_name" var="workers_full_name"/>
-    <fmt:message key="client_full_name" var="clients_full_name"/>
-    <fmt:message key="order.order_status" var="order_status"/>
+    <fmt:message key="order.order_number" var="orderNo"/>
+    <fmt:message key="order.order_date" var="orderDate"/>
+    <fmt:message key="order.complete_date" var="completeDate"/>
+    <fmt:message key="order.order_cost" var="orderCost"/>
+    <fmt:message key="order.order_comment" var="orderComment"/>
+    <fmt:message key="order.order_description" var="orderDescription"/>
+    <fmt:message key="workers_full_name" var="workersFullName"/>
+    <fmt:message key="client_full_name" var="clientsFullName"/>
+    <fmt:message key="order.order_status" var="orderStatus"/>
     <fmt:message key="order.order_comment" var="comment"/>
     <fmt:message key="order.pay" var="pay"/>
-    <fmt:message key="creation_success" var="creation_success"/>
-    <fmt:message key="creation_error" var="creation_error"/>
-    <fmt:message key="allowed_symbols" var="allowed_symbols"/>
+    <fmt:message key="creation_success" var="creationSuccess"/>
+    <fmt:message key="creation_error" var="creationError"/>
+    <fmt:message key="allowed_symbols" var="allowedSymbols"/>
     <fmt:message key="order.create" var="create"/>
     <fmt:message key="order.decline" var="decline"/>
-    <fmt:message key="order.set_status" var="set_status"/>
-    <fmt:message key="order.set_repairer" var="set_repairer"/>
-    <fmt:message key="order.set_payment" var="set_payment"/>
+    <fmt:message key="order.set_status" var="setStatus"/>
+    <fmt:message key="order.set_repairer" var="setRepairer"/>
+    <fmt:message key="order.set_payment" var="setPayment"/>
     <fmt:message key="currency.uah" var="currency"/>
 
     <%-- Order statuses --%>
-    <fmt:parseNumber var="status_id" type="number" value="${order_info.get('status_id')}"/>
+    <fmt:parseNumber var="statusId" type="number" value="${orderInfo.get('statusId')}"/>
     <%-- TODO: Why request scope doesnt work? When variable has req. scope --%>
-    <fmt:message key="${OrderStatus.values()[status_id].toString()}" var="status_value"/>
 
     <%--  Payment statuses  --%>
 
-    <c:set var="order_id" value="${order_info.get('id')}"/>
+    <c:set var="orderId" value="${orderInfo.get('id')}"/>
     <c:set var="statuses" value="${OrderStatus.values()}"/>
 </head>
 <body>
@@ -45,7 +44,7 @@
         <table class="table table-bordered w-25" style="margin-top: 50px;">
             <thead class="thead-dark text-center">
                 <tr>
-                    <th scope="col" colspan="2">${order_no}${order_id}</th>
+                    <th scope="col" colspan="2">${orderNo}${orderId}</th>
                 </tr>
             </thead>
 
@@ -53,19 +52,19 @@
                     <%--    Customer data
                            If role is manager
                    --%>
-                <c:if test="${roleId == Role.MANAGER.ordinal()}">
+                <c:if test="${sessionScope.role == Role.MANAGER}">
                     <tr>
-                        <th scope="row">${clients_full_name}</th>
+                        <th scope="row">${clientsFullName}</th>
                         <td>
                             <form action="controller" method="get" id="client-info-form">
                                 <a role="link" onclick="document.getElementById('client-info-form').submit();"
                                    style="text-decoration: underline; cursor: pointer;">
-                                    <c:out value="${order_info.get('client_last_name')}"/><br>
-                                    <c:out value="${order_info.get('client_first_name')}"/><br>
-                                    <c:out value="${order_info.get('client_middle_name')}"/><br>
+                                    <c:out value="${orderInfo.get('clientLastName')}"/><br>
+                                    <c:out value="${orderInfo.get('clientFirstName')}"/><br>
+                                    <c:out value="${orderInfo.get('clientMiddleName')}"/><br>
                                 </a>
-                                <input type="hidden" name="command" value="goToClientInfo">
-                                <input type="hidden" name="clientId" value="${order_info.get('client_id')}">
+                                <input type="hidden" name="command" value="toClientInfo">
+                                <input type="hidden" name="clientId" value="${orderInfo.get('clientId')}">
                             </form>
                         </td>
                     </tr>
@@ -73,25 +72,25 @@
 
                 <%-- Order date --%>
                 <tr>
-                    <th scope="row">${order_date}</th>
-                    <td><ct:sqlDateOut sqlDate="${order_info.get('order_date')}" locale="${pageContext.response.locale}"/></td>
+                    <th scope="row">${orderDate}</th>
+                    <td><ct:sqlDateOut sqlDate="${orderInfo.get('orderDate')}" locale="${pageContext.response.locale}"/></td>
                 </tr>
 
                 <%-- Complete date --%>
-                <c:if test="${statuses[status_id] == 'COMPLETED'}">
+                <c:if test="${statuses[statusId] == OrderStatus.COMPLETED}">
                     <tr>
-                        <th scope="row">${complete_date}</th>
-                        <td><ct:sqlDateOut sqlDate="${order_info.get('complete_date')}" locale="${pageContext.response.locale}"/></td>
+                        <th scope="row">${completeDate}</th>
+                        <td><ct:sqlDateOut sqlDate="${orderInfo.get('completeDate')}" locale="${pageContext.response.locale}"/></td>
                     </tr>
                 </c:if>
 
                 <%-- Cost --%>
-                <c:if test="${roleId == Role.CLIENT.ordinal() || roleId == Role.MANAGER.ordinal()}">
+                <c:if test="${sessionScope.role == Role.CLIENT || sessionScope.role == Role.MANAGER}">
                     <tr>
-                        <th scope="row">${order_cost}</th>
+                        <th scope="row">${orderCost}</th>
                         <c:choose>
-                            <c:when test="${order_info.get('cost') != null}">
-                                <td><c:out value="${order_info.get('cost')}"/> ${currency}</td>
+                            <c:when test="${orderInfo.get('cost') != null}">
+                                <td><c:out value="${orderInfo.get('cost')}"/> ${currency}</td>
                             </c:when>
                             <c:otherwise>
                                 <td class="table-secondary">-</td>
@@ -102,35 +101,36 @@
 
                 <%-- Order text --%>
                 <tr>
-                    <th scope="row"><c:out value="${order_description}"/></th>
-<%--                    <td>${order_info.get('description')}</td>--%>
-                    <td><c:out value="${order_info.get('description')}"/></td>
+                    <th scope="row"><c:out value="${orderDescription}"/></th>
+<%--                    <td>${orderInfo.get('description')}</td>--%>
+                    <td><c:out value="${orderInfo.get('description')}"/></td>
                 </tr>
 
                 <%-- Worker`s data --%>
-                <c:if test="${order_info.get('worker_last_name') != null && roleId != 1}">
+                <c:if test="${orderInfo.get('workerId') != null && sessionScope.role != Role.REPAIRER}">
                     <tr>
-                        <th scope="row">${workers_full_name}</th>
+                        <th scope="row">${workersFullName}</th>
                         <td>
-                            <c:out value="${order_info.get('worker_last_name')}"/><br>
-                            <c:out value="${order_info.get('worker_first_name')}"/><br>
-                            <c:out value="${order_info.get('worker_middle_name')}"/><br>
+                            <c:out value="${orderInfo.get('workerLastName')}"/><br>
+                            <c:out value="${orderInfo.get('workerFirstName')}"/><br>
+                            <c:out value="${orderInfo.get('workerMiddleName')}"/><br>
                         </td>
                     </tr>
                 </c:if>
 
-                <c:if test="${statuses[status_id] == OrderStatus.COMPLETED}">
+                <%-- Comment --%>
+                <c:if test="${statuses[statusId] == OrderStatus.COMPLETED}">
                     <tr>
                         <th scope="row">${comment}</th>
-                        <td><c:out value="${order_info.get('comment')}"/></td>
+                        <td><c:out value="${orderInfo.get('comment')}"/></td>
                     </tr>
                 </c:if>
 
                 <%-- Status value --%>
                 <tr>
-                    <th scope="row">${order_status}</th>
+                    <th scope="row">${orderStatus}</th>
 <%--                    <td id="status-holder"><c:out value="${status_value}"/></td>--%>
-                    <tdc:tdStatusColor value="${status_value}" status="${statuses[status_id]}"/>
+                    <tdc:tdStatusColor value="${orderInfo.get('statusName')}" status="${statuses[statusId]}"/>
                 </tr>
             </tbody>
         </table>
@@ -139,20 +139,21 @@
     <%-- Controllers --%>
     <c:choose>
         <%-- Client role elements --%>
-        <c:when test="${roleId == Role.CLIENT.ordinal()}">
+        <c:when test="${sessionScope.role == Role.CLIENT}">
             <c:choose>
                 <%--
                     Client create comment option
                 --%>
-                <c:when test="${statuses[status_id] == OrderStatus.COMPLETED.name()}">
+                <c:when test="${statuses[statusId] == OrderStatus.COMPLETED}">
                     <div class="d-flex w-100 justify-content-center align-self-center">
                         <div class="text-center w-25">
                             <form
                                     action="controller"
                                     method="post"
-                                    onsubmit="return validateCommentCreation('comment-text-holder', '${comment}', '${creation_error}', '${allowed_symbols}');">
+                                    onsubmit="return validateCommentCreation('comment-text-holder',
+                                            '${comment}', '${creationError}', '${allowedSymbols}');">
                                 <input type="hidden" name="command" value="createComment"/>
-                                <input type="hidden" name="orderId" value="${order_id}"/>
+                                <input type="hidden" name="orderId" value="${orderId}"/>
                                 <textarea
                                         class="w-100"
                                         id="comment-text-holder"
@@ -167,45 +168,45 @@
                 </c:when>
 
                 <%--  Client pay option  --%>
-                <c:when test="${statuses[status_id] == OrderStatus.WAITING_FOR_PAYMENT.name()}">
+                <c:when test="${statuses[statusId] == OrderStatus.WAITING_FOR_PAYMENT}">
                     <div class="d-flex w-100 justify-content-center align-self-center">
                         <form action="controller" method="post">
-                            <input type="hidden" name="orderId" value="${order_id}">
+                            <input type="hidden" name="orderId" value="${orderId}">
                             <button class="btn btn-success" type="submit" name="command" value="clientPay">${pay}</button>
                             <input type="hidden" name="statusId" value="${OrderStatus.CANCELED.ordinal()}">
                             <button class="btn btn-danger" type="submit" id="set-status-btn" name="command" value="setOrderStatus">${decline}</button>
                         </form>
 
-                        <c:if test="${requestScope.payment_message_key != null}">
-                            <fmt:message key="${requestScope.payment_message_key}" var="payment_status"/>
-                            <h2>${payment_status}</h2>
-                        </c:if>
+<%--                        <c:if test="${requestScope.payment_message_key != null}">--%>
+<%--                            <fmt:message key="${requestScope.payment_message_key}" var="paymentStatus"/>--%>
+<%--                            <h2>${paymentStatus}</h2>--%>
+<%--                        </c:if>--%>
                     </div>
                 </c:when>
             </c:choose>
         </c:when>
 
         <%-- Manager role elements --%>
-        <c:when test="${roleId == Role.MANAGER.ordinal()}">
+        <c:when test="${sessionScope.role == Role.MANAGER}">
             <c:choose>
                 <%-- Set clien`t payment --%>
-                <c:when test="${statuses[status_id] == OrderStatus.CREATED}">
+                <c:when test="${statuses[statusId] == OrderStatus.CREATED}">
                     <div class="d-flex w-100 justify-content-center align-self-center">
                         <form action="controller" method="post">
-                            <input type="hidden" name="order_id" value="${order_id}">
+                            <input type="hidden" name="orderId" value="${orderId}">
                             <input type="hidden" name="command" value="setPayment"/>
-                            <input type="number" name="cost_value" placeholder="${currency}"/>
-                            <button class="btn btn-secondary" type="submit" ><c:out value="${set_payment}"/></button>
+                            <input type="number" name="costValue" placeholder="${currency}" autocomplete="no"/>
+                            <button class="btn btn-secondary" type="submit" ><c:out value="${setPayment}"/></button>
                         </form>
                     </div>
                 </c:when>
 
                 <%-- Set repairer --%>
-                <c:when test="${statuses[status_id] == OrderStatus.PAID}">
+                <c:when test="${statuses[statusId] == OrderStatus.PAID}">
                     <div class="d-flex w-100 justify-content-center align-self-center">
                         <form action="controller" method="post">
                         <select name="repairer" onchange="this.form.submit();">
-                            <option value="none" selected disabled hidden>${set_repairer}</option>
+                            <option value="none" selected disabled hidden>${setRepairer}</option>
                             <c:forEach items="${repairers}" var="entry">
                                 <option value="${entry.key}">${entry.value.lastName} ${entry.value.firstName} ${entry.value.middleName}</option>
                             </c:forEach>
@@ -216,42 +217,43 @@
                 </c:when>
             </c:choose>
 
-            <c:if test="${statuses[status_id] != OrderStatus.COMPLETED}">
+            <c:if test="${statuses[statusId] != OrderStatus.COMPLETED}">
                 <div class="d-flex w-100 justify-content-center align-self-center">
                     <form method="post" action="controller">
                         <select name="statusId" onchange="this.form.submit();">
-                            <option value="none" selected disabled hidden>${set_status}</option>
+                            <option value="none" selected disabled hidden>${setStatus}</option>
                             <option value="${OrderStatus.WAITING_FOR_PAYMENT.ordinal()}">${OrderStatus.WAITING_FOR_PAYMENT}</option>
                             <option value="${OrderStatus.PAID.ordinal()}">${OrderStatus.PAID}</option>
                             <option value="${OrderStatus.CANCELED.ordinal()}">${OrderStatus.CANCELED}</option>
                         </select>
                         <input type="hidden" name="command" value="setOrderStatus">
-                        <input type="hidden" name="orderId" value="${order_info.get('id')}">
+                        <input type="hidden" name="orderId" value="${orderInfo.get('id')}">
                     </form>
                 </div>
             </c:if>
         </c:when>
 
-        <c:when test="${roleId == Role.REPAIRER.ordinal() && statuses[status_id] != OrderStatus.COMPLETED}">
+        <c:when test="${sessionScope.role == Role.REPAIRER && statuses[statusId] != OrderStatus.COMPLETED}">
             <div class="d-flex w-100 justify-content-center align-self-center">
                     <form method="post" action="controller">
                         <select name="statusId" onchange="this.form.submit();">
-                            <option value="none" selected disabled hidden>${set_status}</option>
+                            <option value="none" selected disabled hidden>${setStatus}</option>
                             <option value="${OrderStatus.IN_WORK.ordinal()}">${OrderStatus.IN_WORK}</option>
                             <option value="${OrderStatus.COMPLETED.ordinal()}">${OrderStatus.COMPLETED}</option>
                         </select>
                         <input type="hidden" name="command" value="setOrderStatus">
-                        <input type="hidden" name="orderId" value="${order_info.get('id')}">
+                        <input type="hidden" name="orderId" value="${orderInfo.get('id')}">
                     </form>
             </div>
         </c:when>
     </c:choose>
 
-    <c:if test="${statuses[status_id] == OrderStatus.WAITING_FOR_PAYMENT && sessionScope.paymentStatus != null}">
-        <fmt:message key="payment.${sessionScope.paymentStatus}" var="payment_status"/>
-        <div class="d-flex w-100 justify-content-center align-self-center">
-            <p id="message-holder" style="margin-top: 25px;">${payment_status}</p>
-        </div>
-    </c:if>
+
+<fmt:message key="payment.${requestScope.paymentStatus}" var="paymentStatus"/>
+<div class="d-flex w-100 justify-content-center align-self-center">
+    <p id="message-holder" style="margin-top: 25px;">
+        <c:if test="${requestScope.paymentStatus != null}"><c:out value="${paymentStatus}"/></c:if>
+    </p>
+</div>
 </body>
 </html>
