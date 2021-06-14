@@ -2,8 +2,7 @@ package com.filiaiev.agency.web.util;
 
 public class Paths {
 
-    private Paths() {
-    }
+    private Paths() {}
 
     public static final String JSP__HOME = "/WEB-INF/views/home/home.jsp";
     public static final String URL__REGISTER = "/register";

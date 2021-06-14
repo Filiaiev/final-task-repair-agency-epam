@@ -76,12 +76,15 @@
     </div>
 </nav>
 
-<footer class="text-center text-dark fixed-bottom bg-white">
-    <div class="text-center p-3">
-        <a class="text-dark"
-           href="https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox?compose=GTvVlcSHxjXqQZXWXVfVLMDmTNBWxktFNwwvMWlwVgjtvZjThXQzprtlbkKCjgPVFPgmLmMsLVFFB"
-           target="_blank">
-            <c:out value="${supportEmail}"/>
-            : vladyslav.filiaiev.knm.2019@lpnu.ua</a>
-    </div>
-</footer>
+<c:if test="${sessionScope.role == Role.CLIENT}">
+    <footer class="text-center fixed-bottom text-dark bg-white">
+        <div class="text-center p-3">
+            <a class="text-dark"
+               href="https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox?compose=GTvVlcSHxjXqQZXWXVfVLMDmTNBWxktFNwwvMWlwVgjtvZjThXQzprtlbkKCjgPVFPgmLmMsLVFFB"
+               target="_blank">
+                <c:out value="${supportEmail}"/>
+                : vladyslav.filiaiev.knm.2019@lpnu.ua</a>
+        </div>
+    </footer>
+</c:if>
+

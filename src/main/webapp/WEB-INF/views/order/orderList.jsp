@@ -14,7 +14,7 @@
     <fmt:message key="order.order_status" var="orderStatus"/>
     <fmt:message key="currency.uah" var="currency"/>
 </head>
-<body>
+<body style="margin-bottom: 60px;">
 <%@include file="../nav/navbar.jsp"%>
 <form method="get" action="controller" style="display: block; padding-top: 50px;">
     <input type="hidden" name="command" value="getOrders">

@@ -16,13 +16,17 @@ public class AccessFilter implements Filter {
 
     private static Logger logger = Logger.getLogger(AccessFilter.class);
 
+    /**
+     * Collections that holds accessible actions for each
+     * role according to filter config init params
+    */
     private static Map<Role, List<String>> accessMap = new HashMap<>();
-    private static List<String> outOfControl = new ArrayList<>();
     private static List<String> joint = new ArrayList<>();
     private static List<String> getMethodDisallowed = new ArrayList<>();
     private static List<String> allowedAnywhere = new ArrayList<>();
 
-    @Override
+    // Initializing collections desribed above
+     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.debug("Access filter init started");
 
@@ -53,19 +57,33 @@ public class AccessFilter implements Filter {
         }
     }
 
+    /**
+     * Checking if requested action is allowed for user
+     * that did this request
+     *
+     * @param req ServletRequest instance
+     *
+     * @return boolean value telling if action is accessible or not
+    */
     private boolean accessAllowed(ServletRequest req){
         HttpServletRequest httpRequest = (HttpServletRequest)req;
         String commandName = req.getParameter("command");
 
+        // If command is null, empty or does not exists - dismiss access
         if(commandName == null || commandName.isEmpty() || CommandContainer.getCommand(commandName) == null){
             req.setAttribute("errorKey", "bad_request");
             return false;
         }
 
+        /*
+         * If requested action doesn`t need logging in, or accessible for all roles
+         * then give access
+         */
         if(allowedAnywhere.contains(commandName)){
             return true;
         }
 
+        // Checking if request Method is GET and command is disallowed for this method
         if(httpRequest.getMethod().equals("GET") && getMethodDisallowed.contains(commandName)){
             req.setAttribute("errorKey", "get_disallowed");
             logger.trace("Requested command '" + commandName + "' has disallowed access via GET");
@@ -80,6 +98,11 @@ public class AccessFilter implements Filter {
             return false;
         }
 
+        /*
+         * If user not logged in - disallow access
+         * else if he is logged it and requesting action allowed for anyone
+         * then give access
+        */
         Role role = (Role)session.getAttribute("role");
         if(role == null){
             logger.trace("Unlogged user tried to access command '" + commandName + "'");

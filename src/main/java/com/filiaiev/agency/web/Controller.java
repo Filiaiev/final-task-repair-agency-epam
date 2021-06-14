@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+// Front controller
 public class Controller extends HttpServlet {
 
     private static Logger logger = Logger.getLogger(Controller.class);
@@ -28,7 +29,9 @@ public class Controller extends HttpServlet {
         String forward = CommandContainer.getCommand(cmd).execute(req, resp);
         String method = req.getMethod();
 
+        // If executed command didn`t return null or empty forward String
         if(forward != null && !forward.isEmpty()){
+            // If method is 'GET' --> forward request, else --> redirect (PRG)
             if(method.equals("GET") || req.getAttribute("errorMessage") != null){
                 logger.trace("Command '" + cmd + "', forwarding to --> " + forward);
                 req.getRequestDispatcher(forward).forward(req, resp);

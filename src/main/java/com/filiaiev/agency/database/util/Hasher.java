@@ -3,12 +3,23 @@ package com.filiaiev.agency.database.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class DBUtil {
+public class Hasher {
 
-    private DBUtil(){}
+    private Hasher(){}
 
     private static final String algorithm = "SHA-256";
 
+    /**
+     * Using SHA-256 algorithm to convert String input
+     * to it`s encoded value.
+     * Used to check user login
+     *
+     * @see com.filiaiev.agency.web.command.auth.LogInCommand
+     *
+     * @param input String to encode
+     *
+     * @return encoded String value
+     */
     public static String hash(String input) {
         MessageDigest digest = null;
         try {

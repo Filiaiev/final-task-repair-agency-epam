@@ -34,6 +34,14 @@ public class EmployeeDAO {
     private static final String SQL__GET_EMPLOYEE_BY_PERSON_ID =
             "SELECT * FROM employees WHERE person_id = ?;";
 
+    /**
+     * Getting repairers information in Map representation
+     * Map consists of Person id(key) and Person instance(value)
+     *
+     * @return Map<Integer, Person>,
+     *         key - Person id
+     *         value - Person instance belongs to this id
+     */
     public Map<Integer, Person> getAllRepairersInfo(){
         Map<Integer, Person> repairers = new HashMap<>();
         Connection con = null;
@@ -57,6 +65,12 @@ public class EmployeeDAO {
         return repairers;
     }
 
+    /**
+     * Getting employee instance from the 'employees' table
+     *
+     * @param personId an id of person corresponds to employee
+     * @return Employee instance
+     */
     public Employee getEmployeeByPersonId(int personId){
         Employee employee = null;
         PreparedStatement ps = null;
@@ -84,6 +98,7 @@ public class EmployeeDAO {
     }
 
     private static class EmployeeMapper implements EntityMapper<Employee>{
+
         @Override
         public Employee mapRow(ResultSet rs) {
             Employee employee = new Employee();

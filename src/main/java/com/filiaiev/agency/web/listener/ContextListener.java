@@ -6,7 +6,6 @@ import org.apache.log4j.PropertyConfigurator;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.jsp.jstl.core.Config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -15,6 +14,7 @@ public class ContextListener implements ServletContextListener {
 
     private static final Logger logger = Logger.getLogger(ContextListener.class);
 
+    // Initializing context
     public void contextInitialized(ServletContextEvent sce) {
         logger.debug("Context initialization started");
         ServletContext servletContext = sce.getServletContext();
@@ -24,6 +24,7 @@ public class ContextListener implements ServletContextListener {
         logger.debug("Context initialization successfully finished");
     }
 
+    // Initializing commandContainer class obviously
     private void commandContainerInit(ServletContext servletContext){
         logger.debug("Command container init started");
         try{
@@ -35,6 +36,7 @@ public class ContextListener implements ServletContextListener {
         logger.debug("Command container init successfully finished");
     }
 
+    // Initializing i18n part (avaliable locales)
     private void i18nInit(ServletContext servletContext){
         logger.debug("i18n init started");
         String localeNames = servletContext.getInitParameter("locales");
@@ -54,6 +56,7 @@ public class ContextListener implements ServletContextListener {
         }
     }
 
+    // Initializing logger
     private void log4jInit(ServletContext servletContext){
         logger.debug("Log4J initialization started");
         PropertyConfigurator.configure(servletContext.getRealPath("/WEB-INF/log4j.properties"));

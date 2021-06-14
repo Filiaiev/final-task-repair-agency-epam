@@ -1,20 +1,14 @@
 package dao;
 
-import com.filiaiev.agency.database.dao.ClientDAO;
-import com.filiaiev.agency.database.dao.OrderDAO;
-import com.filiaiev.agency.database.dao.PersonDAO;
 import com.filiaiev.agency.database.dao.UserDAO;
 import com.filiaiev.agency.database.exception.InsertingDuplicateException;
-import com.filiaiev.agency.database.util.DBUtil;
+import com.filiaiev.agency.database.util.Hasher;
 import com.filiaiev.agency.entity.User;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.junit.*;
 import util.DBManagerUtil;
 
-import java.io.IOException;
 import java.sql.*;
 import static util.DBManagerUtil.mockDBManager;
 import static util.DBManagerUtil.resetDBManagerStaticMock;
@@ -32,7 +26,7 @@ public class UserDAOTest {
         userExpected.setId(1);
         userExpected.setEmail("furna@gmail.com");
         userExpected.setLogin("furna");
-        userExpected.setPass(DBUtil.hash("123321"));
+        userExpected.setPass(Hasher.hash("123321"));
         userExpected.setRoleId(2);
 
         // Preparing mocked DBManager class

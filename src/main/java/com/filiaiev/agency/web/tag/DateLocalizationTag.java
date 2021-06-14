@@ -1,7 +1,7 @@
 package com.filiaiev.agency.web.tag;
-import com.filiaiev.agency.web.util.Paths;
 
-import javax.servlet.jsp.JspException;
+import org.apache.log4j.Logger;
+
 import javax.servlet.jsp.tagext.*;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DateLocalizationTag extends TagSupport {
+
+    private static Logger logger = Logger.getLogger(DateLocalizationTag.class);
 
     private String sqlDate;
     private String locale;
@@ -24,16 +26,14 @@ public class DateLocalizationTag extends TagSupport {
     }
 
     @Override
-    public int doStartTag() throws JspException {
-
-        // Custom JSTL tag
-        // Parsing SQL date
+    public int doStartTag() {
+        // Custom JSTL Tag, parsing SQL datetime
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale(locale));
         Date parsed = null;
         try {
             parsed = format.parse(sqlDate);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.warn("Cannot parse SQL date due to --> " + e.getMessage(), e);
         }
 
         // Formatting parsed date to localized
@@ -43,9 +43,8 @@ public class DateLocalizationTag extends TagSupport {
         try {
             pageContext.getOut().print(date);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Cannot out parsed date to page due to --> " + e.getMessage(), e);
         }
-        // returning
         return SKIP_BODY;
     }
 

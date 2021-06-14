@@ -18,12 +18,18 @@ public class DBManager {
 
     public static synchronized DBManager getInstance(){
         if(instance == null){
-            logger.debug("DBManager has been instantiated");
+            logger.debug("DBManager has been instantiated, DataSource loaded");
             instance = new DBManager();
         }
         return instance;
     }
 
+    /**
+    * Getting connection from the DataSource
+     * received from the Context
+     *
+     * @return connection to the DB
+    */
     public Connection getConnection() throws SQLException {
         Connection con = null;
         try{
@@ -39,6 +45,11 @@ public class DBManager {
         return con;
     }
 
+    /**
+     * Commiting changes and closing connection
+     *
+     * @param con connection to the DB
+    */
     public void commitAndClose(Connection con) {
         if(con == null){
             return;
@@ -52,6 +63,11 @@ public class DBManager {
         }
     }
 
+    /**
+     * Rollbacking changes and closing connection
+     *
+     * @param con connection to the DB
+     */
     public void rollbackAndClose(Connection con) {
         if(con == null){
             return;

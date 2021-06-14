@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+// Servlet whose task is to set client`s cash
 public class SetClientCashCommand implements Command {
 
     private static Logger logger = Logger.getLogger(SetClientCashCommand.class);
@@ -20,12 +21,13 @@ public class SetClientCashCommand implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int clientId = Integer.parseInt(req.getParameter("clientId"));
+
         BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(req.getParameter("cashValue")));
 
         ClientDAO clientDAO = new ClientDAO();
         Client client = clientDAO.getClientById(clientId);
 
-        // amountToAdd passing to logger
+        // amount to add to client`s cash
         BigDecimal amountToAdd = amount;
         amount = client.getCash().add(amount);
         clientDAO.setClientCashById(amount, clientId);

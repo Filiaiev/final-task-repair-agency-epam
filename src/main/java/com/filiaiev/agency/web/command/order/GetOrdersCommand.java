@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// Servlet whose task is to return orders according to given params
 public class GetOrdersCommand implements Command {
 
+    // quantity of orders per page
     private static final int OFFSET = 5;
 
     @Override
@@ -29,17 +31,20 @@ public class GetOrdersCommand implements Command {
 
         Role role = (Role)session.getAttribute("role");
         String forward = null;
-        int currentPage = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
+        int currentPage = req.getParameter("page") == null ? 1
+                : Integer.parseInt(req.getParameter("page"));
 
         List<Order> orders = null;
         OrderDAO orderDAO = new OrderDAO((String)session.getAttribute("lang"));
 
+        // starting read-element
         int start = (currentPage-1)*OFFSET;
         double pagesCount = 0;
         double ordersCount = 0;
 
         int personId = ((Person)session.getAttribute("person")).getId();
 
+        // each role has own orders getter
         switch (role){
             case CLIENT:
                 orders = orderDAO.getOrdersByPersonId(personId, start, OFFSET);
@@ -56,6 +61,7 @@ public class GetOrdersCommand implements Command {
                 String sortBy = null;
                 String ordering = null;
 
+                // if filters have not been reset, add them to req attributes
                 if(!resetFilter){
                     sortBy = req.getParameter("sortBy");
                     ordering = req.getParameter("ordering");
@@ -81,6 +87,12 @@ public class GetOrdersCommand implements Command {
         return forward;
     }
 
+    /**
+     * Getting filters from the req params
+     * Two filters can be found: status_id and worker_id
+     *
+     * @return filters map, or null if no filters found
+    */
     public static Map<String, String> getFilters(HttpServletRequest req, boolean reset){
         Map<String, String> filters = null;
         List<String> params = Collections.list(req.getParameterNames());

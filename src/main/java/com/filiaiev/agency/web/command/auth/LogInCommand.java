@@ -4,7 +4,7 @@ import com.filiaiev.agency.database.dao.ClientDAO;
 import com.filiaiev.agency.database.dao.EmployeeDAO;
 import com.filiaiev.agency.database.dao.PersonDAO;
 import com.filiaiev.agency.database.dao.UserDAO;
-import com.filiaiev.agency.database.util.DBUtil;
+import com.filiaiev.agency.database.util.Hasher;
 import com.filiaiev.agency.entity.Client;
 import com.filiaiev.agency.entity.Person;
 import com.filiaiev.agency.entity.Role;
@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+// Servlet whose task is to provide logging in to the user
 public class LogInCommand implements Command {
 
     private static Logger logger = Logger.getLogger(LogInCommand.class);
@@ -27,10 +28,14 @@ public class LogInCommand implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String login = req.getParameter("userLogin");
-        String pass = DBUtil.hash(req.getParameter("userPass"));
+        String pass = Hasher.hash(req.getParameter("userPass"));
 
         User user = new UserDAO().getUserByLogin(login);
 
+        /*
+         * If log in fails --> redirecting to the same page
+         * and showing error message
+        */
         if(user == null) {
             req.getSession().setAttribute("loginMessage", "user_not_found");
             return Paths.URL__WELCOME;
@@ -42,15 +47,19 @@ public class LogInCommand implements Command {
 
         HttpSession session = req.getSession();
         Person person = new PersonDAO().getPersonByUserId(user.getId());
-        String initLocale = req.getServletContext().getInitParameter("javax.servlet.jsp.jstl.fmt.locale");
-        session.setAttribute("lang", initLocale);
 
+        if(session.getAttribute("lang") == null){
+            session.setAttribute("lang", req.getServletContext().getInitParameter("javax.servlet.jsp.jstl.fmt.locale"));
+        }
+
+        // Providing log in by role
         if(user.getRoleId() == Role.CLIENT.ordinal()){
             ClientDAO clientDAO = new ClientDAO();
             Client client = clientDAO.getClientByPersonId(person.getId());
 
             session.setAttribute("client", client);
-            String prefferableLocale = session.getAttribute("lang") == null ? initLocale : (String)session.getAttribute("lang");
+            // If client did not change his lang before log in, set it to his prefferable
+            String prefferableLocale = session.getAttribute("lang") == null ? client.getPreferredLocale() : (String)session.getAttribute("lang");
             clientDAO.updatePreferredLocaleById(client.getId(), prefferableLocale);
 
             logger.info("Client #" + client.getId() + "(" + user.getLogin() + ") has logged in");

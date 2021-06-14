@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+// Servlet whose task is to return client info to person who requested it
 public class GetOrderInfoCommand implements Command {
 
     private static Logger logger = Logger.getLogger(GetOrderInfoCommand.class);
@@ -23,6 +24,8 @@ public class GetOrderInfoCommand implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer orderId = null;
+
+        // Checking if passed orderId is null
         try{
             orderId = Integer.parseInt(req.getParameter("orderId"));
         }catch (NumberFormatException e){
@@ -36,6 +39,7 @@ public class GetOrderInfoCommand implements Command {
         Map<String, String> orderInfo = orderDAO.getOrderInfoByOrderId(orderId);
         Order orderDummy = null;
 
+        // Setting dummy order client and worker ids
         if(orderInfo != null) {
             orderDummy = new Order();
             orderDummy.setClientId(Integer.parseInt(orderInfo.get("clientId")));
@@ -44,6 +48,7 @@ public class GetOrderInfoCommand implements Command {
                     Integer.parseInt(orderInfo.get("workerId")));
         }
 
+        // Checking if order is accessible for current user
         if(new OrderInfoAccessor().isAccessible(req, orderDummy)){
             req.getSession().setAttribute("orderInfo", orderInfo);
             forward = Paths.JSP__ORDER;
@@ -56,6 +61,7 @@ public class GetOrderInfoCommand implements Command {
             req.setAttribute("errorKey", errorKey);
         }
 
+        // Setting payment status
         req.setAttribute("paymentStatus", req.getParameter("paymentStatus"));
         return forward;
     }

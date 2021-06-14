@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.sql.*;
-import java.sql.Date;
 import java.util.*;
 
 public class OrderDAO {
@@ -104,6 +103,31 @@ public class OrderDAO {
             "ON l.id = sl.locale_id " +
             "WHERE oh.id = ? AND l.locale = ?;";
 
+    /**
+     * Getting orders filtered by some criterias
+     *
+     * When filters is null or empty --> does not apply any filters
+     * @see #getFilteringPart(Map, String)
+     * Else if filters were passed --> add them to query
+     *
+     * When sortField is null --> order by order_date by default
+     * @see #getOrderingPart(String, String)
+     * Else if sortField was passed --> add it to query
+     * with passed order, or, by default - ascending
+     *
+     * When start and offset both equals to '0'
+     * then selecting all orders with given filters
+     *
+     * @param filters Map<String, String>
+     *                key - column name
+     *                value - column value
+     * @param sortField field by which select is ordered
+     * @param ordering selecting order
+     * @param start starting select point
+     * @param offset quantity of elements to be selected
+     *
+     * @return List of orders filtered by given params
+     */
     public List<Order> getOrders(Map<String, String> filters, String sortField,
                                  String ordering, int start, int offset){
         List<Order> orders = new ArrayList<>();
@@ -113,9 +137,11 @@ public class OrderDAO {
         PreparedStatement ps = null;
 
         if(start == 0 && offset == 0){
+            // Getting all orders by given filters
             query = SQL__GET_ALL_ORDERS + getFilteringPart(filters, sortField)
                     + getOrderingPart(sortField, ordering);
         }else{
+            // Getting orders by given filters with limit per query
             query = SQL__GET_ALL_ORDERS
                     + getFilteringPart(filters, sortField)
                     + getOrderingPart(sortField, ordering)
@@ -141,6 +167,16 @@ public class OrderDAO {
         return orders;
     }
 
+    /**
+     * Getting orders count by given field and value
+     * When both field and value equals to 'null',
+     * getting all orders counted
+     *
+     * @param field field to count
+     * @param value field`s value
+     *
+     * @return orders count
+     */
     public Integer getOrdersCountByField(String field, String value){
         Integer count = null;
         Connection con = null;
@@ -164,6 +200,13 @@ public class OrderDAO {
         return count;
     }
 
+    /**
+     * Getting orders filtered by given order status
+     *
+     * @param status status to filter orders
+     *
+     * @return List of orders
+     */
     public List<Order> getOrdersByStatus(OrderStatus status){
         List<Order> orders = new ArrayList<>();
         PreparedStatement ps = null;
@@ -191,6 +234,19 @@ public class OrderDAO {
         return orders;
     }
 
+    /**
+     * Getting orders which belongs to given repairerId
+     * with given select limit
+     *
+     * When both start and offset equals to '0'
+     * return all repairer`s orders
+     *
+     * @param repairerId repairer id whose orders to return
+     * @param start starting select point
+     * @param offset quantity of elements to be selected
+     *
+     * @return List of orders
+     */
     public List<Order> getOrdersByRepairerId(int repairerId, int start, int offset){
         List<Order> orders = new ArrayList<>();
         PreparedStatement ps = null;
@@ -224,6 +280,19 @@ public class OrderDAO {
         return orders;
     }
 
+    /**
+     * Getting orders which belongs to given personId
+     * with given select limit
+     *
+     * When both start and offset equals to '0'
+     * return all repairer`s orders
+     *
+     * @param personId person id whose orders to return
+     * @param start starting select point
+     * @param offset quantity of elements to be selected
+     *
+     * @return List of orders
+     */
     public List<Order> getOrdersByPersonId(int personId, int start, int offset){
         List<Order> orders = new ArrayList<>();
         PreparedStatement ps = null;
@@ -257,18 +326,23 @@ public class OrderDAO {
         return orders;
     }
 
+    /**
+     * Getting order by given order id
+     *
+     * @param orderId order identificator
+     *
+     * @return Order instance
+     */
     public Order getOrderByOrderId(int orderId){
         Order order = null;
-        PreparedStatement ps = null;
         Connection con = null;
-        ResultSet rs = null;
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__GET_ORDER_BY_ORDER_ID);
+            PreparedStatement ps = con.prepareStatement(SQL__GET_ORDER_BY_ORDER_ID);
             ps.setString(1, locale);
             ps.setInt(2, orderId);
-            rs = ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
             OrderMapper orderMapper = new OrderMapper();
             if(rs.next()){
                 order = orderMapper.mapRow(rs);
@@ -284,14 +358,22 @@ public class OrderDAO {
         return order;
     }
 
+    /**
+     * Inserting new order created by client
+     * with given order text
+     *
+     * @param clientId client id who creating order
+     * @param orderText order description
+     *
+     * @return inserted order id
+     */
     public Integer insertOrderByClientId(int clientId, String orderText) {
-        PreparedStatement ps = null;
         Connection con = null;
         Integer generatedId = null;
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__INSERT_ORDER, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = con.prepareStatement(SQL__INSERT_ORDER, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, clientId);
             ps.setString(2, orderText);
 
@@ -310,18 +392,25 @@ public class OrderDAO {
         return generatedId;
     }
 
+    /**
+     * Getting order info represented as Map
+     * Client`s and repairer`s data represented as full names
+     * in addition to their ids.
+     *
+     * @param orderId order identificator to select
+     *
+     * @return Map<String, String> map holding selected information about order
+     */
     public Map<String, String> getOrderInfoByOrderId(int orderId){
         Map<String, String> orderInfo = null;
-        PreparedStatement ps = null;
         Connection con = null;
-        ResultSet rs = null;
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__GET_ORDER_INFO_BY_ORDER_ID);
+            PreparedStatement ps = con.prepareStatement(SQL__GET_ORDER_INFO_BY_ORDER_ID);
             ps.setInt(1, orderId);
             ps.setString(2, locale);
-            rs = ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
             if(rs.next()){
                 orderInfo = new HashMap<>();
                 orderInfo.put("id", rs.getString("id"));
@@ -340,7 +429,6 @@ public class OrderDAO {
                 orderInfo.put("workerMiddleName", rs.getString("worker_mname"));
                 orderInfo.put("statusId", rs.getString("status_id"));
                 orderInfo.put("statusName", rs.getString("status_name"));
-                System.out.println(orderInfo);
             }
             rs.close();
             ps.close();
@@ -353,13 +441,18 @@ public class OrderDAO {
         return orderInfo;
     }
 
+    /**
+     * Setting order repairer by given order id and repairer id
+     *
+     * @param repairerId repairer to set
+     * @param orderId order identificator
+     */
     public void setOrderRepairerById(int repairerId, int orderId){
-        PreparedStatement ps = null;
         Connection con = null;
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__SET_REPAIRER_BY_ORDER_ID);
+            PreparedStatement ps = con.prepareStatement(SQL__SET_REPAIRER_BY_ORDER_ID);
             ps.setInt(1, repairerId);
             ps.setInt(2, orderId);
             ps.execute();
@@ -374,8 +467,14 @@ public class OrderDAO {
         DBManager.getInstance().commitAndClose(con);
     }
 
+    /**
+     * Updating order status by given order id and Status enum value
+     * If updating status equals 'completed' --> set complete date to current time
+     *
+     * @param status status to set
+     * @param orderId order identificator
+     */
     public void updateStatusById(OrderStatus status, int orderId){
-        PreparedStatement ps = null;
         Connection con = null;
         StringBuilder query = new StringBuilder("UPDATE order_headers SET status_id = ?");
         try{
@@ -384,7 +483,7 @@ public class OrderDAO {
                 query.append(", complete_date = NOW()");
             }
             query.append(" WHERE id = ?");
-            ps = con.prepareStatement(query.toString());
+            PreparedStatement ps = con.prepareStatement(query.toString());
             ps.setInt(1, status.ordinal());
             ps.setInt(2, orderId);
 
@@ -398,13 +497,18 @@ public class OrderDAO {
         DBManager.getInstance().commitAndClose(con);
     }
 
+    /**
+     * Updating order comment by given order id and comment text itself
+     *
+     * @param comment comment text to set
+     * @param orderId order identificator
+     */
     public void updateOrderCommentById(int orderId, String comment){
-        PreparedStatement ps = null;
         Connection con = null;
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__UPDATE_COMMENT_BY_ORDER_ID);
+            PreparedStatement ps = con.prepareStatement(SQL__UPDATE_COMMENT_BY_ORDER_ID);
             ps.setString(1, comment);
             ps.setInt(2, orderId);
             ps.execute();
@@ -418,13 +522,18 @@ public class OrderDAO {
         DBManager.getInstance().commitAndClose(con);
     }
 
+    /**
+     * Setting order cost by given order id and cost value itself
+     *
+     * @param cost cost value to set
+     * @param orderId order identificator
+     */
     public void setOrderCostById(BigDecimal cost, int orderId){
-        PreparedStatement ps = null;
         Connection con = null;
 
         try{
             con = DBManager.getInstance().getConnection();
-            ps = con.prepareStatement(SQL__SET_ORDER_COST_BY_ID);
+            PreparedStatement ps = con.prepareStatement(SQL__SET_ORDER_COST_BY_ID);
             ps.setBigDecimal(1, cost);
             ps.setInt(2, orderId);
             ps.execute();
@@ -438,6 +547,23 @@ public class OrderDAO {
         DBManager.getInstance().commitAndClose(con);
     }
 
+    /**
+     * Filtering part query builder
+     *
+     * When passed filters and sorting field equals 'null'
+     * or filters map is empty
+     * then return empty string
+     *
+     * When passed filters equals to 'null' or empty
+     * then return sorting part
+     *
+     * @param filters Map<String, String>
+     *                key - column name
+     *                value - column value
+     * @param sortField field by which select is ordered
+     *
+     * @return String representation of filtering query part
+     */
     private static String getFilteringPart(Map<String, String> filters, String sortField){
         if((filters == null || filters.size() == 0) && sortField == null){
             return "";
@@ -455,12 +581,23 @@ public class OrderDAO {
         return sb.toString();
     }
 
-    private static String getOrderingPart(String sortField, String desc){
+    /**
+     * Ordering part query builder
+     *
+     * When passed sortField equals to 'null'
+     * then return empty string
+     *
+     * @param sortField field by which select is ordered
+     * @param order 'asc' or 'desc', - sorting order
+     *
+     * @return String representation of ordering query part
+     */
+    private static String getOrderingPart(String sortField, String order){
         if(sortField == null){
             return " ORDER BY oh.order_date DESC";
         }
 
-        return " ORDER BY oh." + sortField + " " + Objects.toString(desc, "");
+        return " ORDER BY oh." + sortField + " " + Objects.toString(order, "");
     }
 
     private static class OrderMapper implements EntityMapper<Order>{
@@ -485,5 +622,4 @@ public class OrderDAO {
             }
         }
     }
-
 }

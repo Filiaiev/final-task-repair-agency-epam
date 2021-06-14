@@ -251,7 +251,7 @@
 
 <fmt:message key="payment.${requestScope.paymentStatus}" var="paymentStatus"/>
 <div class="d-flex w-100 justify-content-center align-self-center">
-    <p id="message-holder" style="margin-top: 25px;">
+    <p id="message-holder" style="margin-top: 10px; margin-bottom: 100px">
         <c:if test="${requestScope.paymentStatus != null}"><c:out value="${paymentStatus}"/></c:if>
     </p>
 </div>

@@ -35,6 +35,11 @@ CREATE TABLE users(
     FOREIGN KEY(role_id) REFERENCES roles(id)
 );
 
+CREATE TRIGGER passwordHash
+BEFORE INSERT
+ON users FOR EACH ROW
+SET new.pass = sha2(new.pass, 256);
+
 CREATE TABLE persons(
 	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     last_name VARCHAR(26) NOT NULL,

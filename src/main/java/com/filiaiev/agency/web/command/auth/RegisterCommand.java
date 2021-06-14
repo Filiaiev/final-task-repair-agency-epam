@@ -1,10 +1,9 @@
-package com.filiaiev.agency.web.command.client;
+package com.filiaiev.agency.web.command.auth;
 
 import com.filiaiev.agency.database.dao.ClientDAO;
 import com.filiaiev.agency.database.dao.PersonDAO;
 import com.filiaiev.agency.database.dao.UserDAO;
 import com.filiaiev.agency.database.exception.InsertingDuplicateException;
-import com.filiaiev.agency.database.util.DBUtil;
 import com.filiaiev.agency.entity.Role;
 import com.filiaiev.agency.web.command.Command;
 import com.filiaiev.agency.web.util.Paths;
@@ -16,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.*;
 
+// Servlet whose task is to provide user registration
 public class RegisterCommand implements Command {
 
     private static Logger logger = Logger.getLogger(RegisterCommand.class);
@@ -32,6 +32,7 @@ public class RegisterCommand implements Command {
 
         String registerMessage = null;
 
+        // Inserting new user to the DB if he doesn`t exist yet
         try{
             Integer userId = new UserDAO().insertUser(email, login, pass, Role.CLIENT.ordinal());
             Integer personId = new PersonDAO().insertPerson(firstName, middleName, lastName, Date.valueOf(birthDate), userId);

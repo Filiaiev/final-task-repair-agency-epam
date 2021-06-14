@@ -1,6 +1,5 @@
 package com.filiaiev.agency.web.command.client;
 
-import com.filiaiev.agency.database.DBManager;
 import com.filiaiev.agency.database.dao.OrderDAO;
 import com.filiaiev.agency.entity.Client;
 import com.filiaiev.agency.entity.User;
@@ -13,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+// Servlet whose task is to create new order according to client`s request
 public class CreateOrderCommand implements Command {
 
     private static Logger logger = Logger.getLogger(CreateOrderCommand.class);
@@ -20,6 +20,8 @@ public class CreateOrderCommand implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String orderText = req.getParameter("orderText");
+
+        // Empty order handling ( for GET request == skipping JS validation )
         if(orderText == null || orderText.isEmpty()){
             req.setAttribute("errorKey", "order_description_cannot_be_empty");
             return Paths.JSP__ERROR;

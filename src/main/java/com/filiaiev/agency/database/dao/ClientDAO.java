@@ -29,6 +29,12 @@ public class ClientDAO{
     private static final String SQL__UPDATE_PREFERRED_LOCALE_BY_ID =
             "UPDATE clients SET preferred_locale = ? WHERE id = ?;";
 
+    /**
+     * Inserting new client to the 'clients' table
+     *
+     * @param personId an id of person to be inserted in 'clients' table
+     * @return an id of inserted client
+    */
     public Integer insertClient(int personId) throws InsertingDuplicateException{
         PreparedStatement ps = null;
         Connection con = null;
@@ -50,7 +56,6 @@ public class ClientDAO{
             DBManager.getInstance().rollbackAndClose(con);
             throw new InsertingDuplicateException("Client with person_id #" + personId
                     + " already exists", e);
-
         }
         catch (SQLException e){
             DBManager.getInstance().rollbackAndClose(con);
@@ -61,6 +66,12 @@ public class ClientDAO{
         return clientId;
     }
 
+    /**
+     * Getting client instance from the 'clients' table
+     *
+     * @param personId an id of person belongs to the client
+     * @return Client instance
+    */
     public Client getClientByPersonId(int personId){
         Client client = null;
         PreparedStatement ps = null;
@@ -87,6 +98,12 @@ public class ClientDAO{
         return client;
     }
 
+    /**
+     * Getting client instance from the 'clients' table
+     *
+     * @param clientId an id of client to return
+     * @return Client instance
+     */
     public Client getClientById(int clientId){
         PreparedStatement ps = null;
         Connection con = null;
@@ -113,6 +130,12 @@ public class ClientDAO{
         return client;
     }
 
+    /**
+     * Getting client`s cash by client id
+     *
+     * @param clientId an id of client whose cash to be returned
+     * @return client`s cash
+     */
     public BigDecimal getClientCashByClientId(int clientId){
         PreparedStatement ps = null;
         Connection con = null;
@@ -139,6 +162,12 @@ public class ClientDAO{
         return cash;
     }
 
+    /**
+     * Setting client`s cash by client id
+     *
+     * @param newCash cash value to replace old
+     * @param clientId an id of client whose cash to be setted
+     */
     public void setClientCashById(BigDecimal newCash, int clientId){
         PreparedStatement ps = null;
         Connection con = null;
@@ -159,6 +188,14 @@ public class ClientDAO{
         DBManager.getInstance().commitAndClose(con);
     }
 
+    /**
+     * Updating client`s locale to use it in
+     * email message localization
+     *
+     * @see com.filiaiev.agency.mail.MailSender
+     * @param clientId an id of client whose locale updates
+     * @param locale locale name
+     */
     public void updatePreferredLocaleById(int clientId, String locale){
         PreparedStatement ps = null;
         Connection con = null;
@@ -180,6 +217,7 @@ public class ClientDAO{
     }
 
     private static class ClientMapper implements EntityMapper<Client> {
+
         @Override
         public Client mapRow(ResultSet rs) {
             try{

@@ -101,6 +101,10 @@ public class Order extends Entity implements Comparable<Order>{
         return statusId-o.statusId;
     }
 
+    /**
+     * Equals compares all fields excluding statusName,
+     * because it does not appears at order_headers table in DB
+    */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

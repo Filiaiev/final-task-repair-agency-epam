@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+// Servlet whose task is to provide user logging out
 public class LogOutCommand implements Command {
 
     private static Logger logger = Logger.getLogger(LogOutCommand.class);
@@ -17,6 +18,7 @@ public class LogOutCommand implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User user = (User)req.getSession(false).getAttribute("user");
+        // Invalidating session and move to the main page
         req.getSession(false).invalidate();
         logger.info("User " + user.getLogin() + " has logged out");
         return Paths.URL__WELCOME;

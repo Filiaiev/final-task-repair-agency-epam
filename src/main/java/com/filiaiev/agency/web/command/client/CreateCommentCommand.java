@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+// Servlet whose task is to create comment for order according to client`s request
 public class CreateCommentCommand implements Command {
 
     private static Logger logger = Logger.getLogger(CreateCommentCommand.class);
@@ -21,6 +22,8 @@ public class CreateCommentCommand implements Command {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String comment = req.getParameter("commentText");
+
+        // Empty comment handling ( for GET request == skipping JS validation )
         if(comment == null || comment.isEmpty()){
             req.setAttribute("errorKey", "comment_cannot_be_empty");
             return Paths.JSP__ERROR;
@@ -34,12 +37,11 @@ public class CreateCommentCommand implements Command {
         Client client = (Client) req.getSession().getAttribute("client");
         User user = (User)req.getSession().getAttribute("user");
 
+        // If no order found with passed id, show error
         if(order == null || order.getClientId() != client.getId()){
             req.setAttribute("errorKey", "no_permission_to_this_order");
-
             logger.info("Client #" + client.getId() + "(" + user.getLogin() + ") tried to set comment to Order #" + orderId
                         + " but had no permission");
-
             return Paths.JSP__ERROR;
         }
 

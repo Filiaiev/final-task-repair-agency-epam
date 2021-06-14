@@ -1,5 +1,6 @@
 package com.filiaiev.agency.web.command;
 
+import com.filiaiev.agency.web.command.auth.RegisterCommand;
 import com.filiaiev.agency.web.command.client.*;
 import com.filiaiev.agency.web.command.joint.SetLocaleCommand;
 import com.filiaiev.agency.web.command.joint.SetOrderStatusCommand;
@@ -32,14 +33,16 @@ public abstract class CommandContainer {
     public static final String TO_PROFILE = "toProfile";
     public static final String TO_CREATION_FORM = "toCreationForm";
 
-    public static final String SET_LOCALE = "setLocale";
 
     public static final String CREATE_COMMENT = "createComment";
     public static final String CREATE_ORDER = "createOrder";
 
     public static final String CLIENT_PAY = "clientPay";
 
+    public static final String GENERATE_REPORT = "generateReport";
+
     // Setters
+    public static final String SET_LOCALE = "setLocale";
     public static final String SET_REPAIRER = "setRepairer";
     public static final String SET_PAYMENT = "setPayment";
     public static final String SET_CLIENT_CASH = "setClientCash";
@@ -56,28 +59,23 @@ public abstract class CommandContainer {
         commands.put(GET_ORDERS, new GetOrdersCommand());
         commands.put(GET_ORDER_INFO, new GetOrderInfoCommand());
 
-        // Go to
         commands.put(TO_HOME, new ToHomePageCommand());
         commands.put(TO_PROFILE, new ToProfileCommand());
         commands.put(TO_CREATION_FORM, new ToCreationFormCommand());
-        commands.put(TO_CLIENT_INFO, new ShowClientInfoCommand());
+        commands.put(TO_CLIENT_INFO, new GetClientInfoCommand());
 
-        //bundle
-        commands.put(SET_LOCALE, new SetLocaleCommand());
-
-        //client
         commands.put(CREATE_COMMENT, new CreateCommentCommand());
         commands.put(CLIENT_PAY, new PayCommand());
 
         //manager
+        commands.put(SET_LOCALE, new SetLocaleCommand());
         commands.put(SET_PAYMENT, new SetPaymentCommand());
         commands.put(SET_REPAIRER, new SetRepairerCommand());
         commands.put(SET_CLIENT_CASH, new SetClientCashCommand());
-        commands.put("generateReport", new GenerateReportCommand());
+        commands.put(GENERATE_REPORT, new GenerateReportCommand());
 
         commands.put(SET_ORDER_STATUS, new SetOrderStatusCommand());
 
-        //helper
         commands.put(WRONG_COMMAND, new WrongCommand());
     }
 

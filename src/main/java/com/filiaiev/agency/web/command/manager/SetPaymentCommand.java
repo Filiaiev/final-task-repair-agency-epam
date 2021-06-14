@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Map;
 
+// Servlet whose task is to set payment to requested order
 public class SetPaymentCommand implements Command {
 
     private static Logger logger = Logger.getLogger(SetPaymentCommand.class);
@@ -25,14 +26,14 @@ public class SetPaymentCommand implements Command {
         int orderId = Integer.parseInt(req.getParameter("orderId"));
         String cost = req.getParameter("costValue");
 
-        // Updating table
+        // Updating DB table
         orderDAO.setOrderCostById(BigDecimal.valueOf(Double.parseDouble(cost)), orderId);
 
-        // Updating session order_info map
+        // Updating session orderInfo Map
         orderInfo.put("cost", cost);
         orderInfo.put("statusId", String.valueOf(OrderStatus.WAITING_FOR_PAYMENT.ordinal()));
 
-        // Updating session value
+        // Updating session Map attribute to be able to show changes at client-side
         req.getSession().setAttribute("orderInfo", orderInfo);
 
         logger.info("Payment for Order #" + orderId + " has been set by " +

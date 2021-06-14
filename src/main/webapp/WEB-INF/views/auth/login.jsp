@@ -53,10 +53,15 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 offset-md-4">
-                                <input type="hidden" name="command" value="login">
-                                <input type="submit" class="btn btn-dark" value="${logIn}">
-                                <a href="${pageContext.request.contextPath}/register" class="btn btn-dark ml-4">${register}</a>
+                            <div class="d-flex col-md-6 offset-md-4">
+                                <div>
+                                    <input type="hidden" name="command" value="login">
+                                    <input type="submit" class="btn btn-dark" value="${logIn}">
+                                </div>
+
+                                <div class="d-inline-flex">
+                                    <a href="${pageContext.request.contextPath}/register" class="btn btn-dark ml-4">${register}</a>
+                                </div>
                             </div>
                         </form>
                     </div>

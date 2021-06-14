@@ -8,7 +8,6 @@ import com.filiaiev.agency.entity.OrderStatus;
 import com.filiaiev.agency.entity.User;
 import com.filiaiev.agency.web.command.Command;
 import com.filiaiev.agency.web.command.CommandContainer;
-import com.filiaiev.agency.web.util.Paths;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Map;
 
+// Servlet whose task is to provide client`s payment logic
 public class PayCommand implements Command {
 
     private static Logger logger = Logger.getLogger(PayCommand.class);
@@ -35,25 +35,33 @@ public class PayCommand implements Command {
         Order order = orderDAO.getOrderByOrderId(orderId);
         User user = (User)session.getAttribute("user");
 
+        // Getting current client`s cash
         BigDecimal clientCash = clientDAO.getClientCashByClientId(client.getId());
 
         String paymentStatus = null;
+
+        /*
+        * If client doesn`t have enough money to pay
+        * show him according message
+        */
         if(clientCash.compareTo(order.getCost()) < 0){
             paymentStatus = "payment_not_enough_money";
             logger.trace("Client #" + client.getId() + "(" + user.getLogin() + ") " +
                     "hasn`t got enough cash to pay for Order #" + order.getId());
         }else{
+            // Substracting order cost from client`s cash and setting PAID status
             BigDecimal newCash = clientCash.subtract(order.getCost());
             clientDAO.setClientCashById(newCash, client.getId());
             orderDAO.updateStatusById(OrderStatus.PAID, order.getId());
 
-            // update session info
             client.setCash(newCash);
             order.setStatusId(OrderStatus.PAID.ordinal());
-            // TODO: changed session to req
+
+            // Updating orderInfo Map
             Map<String, String> orderInfo = (Map<String, String>)session.getAttribute("orderInfo");
             orderInfo.put("statusId", String.valueOf(order.getStatusId()));
 
+            // Updating session attributes
             session.setAttribute("order", order);
             session.setAttribute("client", client);
             session.setAttribute("order_info", orderInfo);

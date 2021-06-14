@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+// Servlet whose task is to set order status for requested order
 public class SetOrderStatusCommand implements Command {
 
     private static Logger logger = Logger.getLogger(SetOrderStatusCommand.class);
@@ -37,10 +38,16 @@ public class SetOrderStatusCommand implements Command {
 
         Map<String, String> orderInfo = (Map<String, String>)req.getSession().getAttribute("orderInfo");
 
+        /*
+         * If status setting to --> COMPLETED or WAITING_FOR_PAYMENT
+         * send email notification to client whose order is being processed
+        */
         if(statusValues[statusId] == OrderStatus.COMPLETED ||
                 statusValues[statusId] == OrderStatus.WAITING_FOR_PAYMENT){
+
             Client client = new ClientDAO().getClientById(order.getClientId());
             String clientEmail = new UserDAO().getUserByOrderClientId(client.getId()).getEmail();
+
             try {
                 orderStatusEmailNotify(statusValues[statusId], client, orderInfo);
                 logger.trace("Email notification has been sent to --> "
@@ -50,20 +57,32 @@ public class SetOrderStatusCommand implements Command {
                     + clientEmail + "'", e);
             }
         }
-
         logger.info("Order #" + orderId + " status updated --> (" + statusValues[statusId] + ")");
 
         return "/controller?command=" + CommandContainer.GET_ORDER_INFO
                 + "&orderId=" + orderId;
     }
 
+    /**
+     * Sends email notification to client
+     * according to given order status value
+     *
+     * @param status order status
+     * @param client client whose order is being processed
+     * @param orderInfo map contains information about order
+     *
+     * @see MailSender#sendEmail(String, String, String)
+     * @see OrderDAO#getOrderInfoByOrderId(int)
+    */
     private void orderStatusEmailNotify(OrderStatus status, Client client,
                                         Map<String, String> orderInfo) throws MessagingException {
         String subject = null;
         String text = null;
 
+        // Loading ResourceBundle according to client`s preferable locale
         ResourceBundle rb = ResourceBundle.getBundle("i18n.app", new Locale(client.getPreferredLocale()));
         int orderId = Integer.parseInt(orderInfo.get("id"));
+
         switch (status){
             case COMPLETED:
                 subject = String.format(rb.getString("email.message.complete.subject"), orderId);
@@ -76,6 +95,7 @@ public class SetOrderStatusCommand implements Command {
                         orderInfo.get("clientLastName") + " " + orderInfo.get("clientFirstName"));
                 break;
         }
+
         MailSender.sendEmail(new UserDAO().getUserByOrderClientId(client.getId()).getEmail(), subject, text);
     }
 }
